@@ -1,60 +1,37 @@
-import 'dart:convert';
+class Messages {
+  final int id;
+  final String message;
+  final DateTime sendingDate;
+  final int idSender;
+  final int idReceipt;
 
-class Message {
-  int? _id;
-  String? _message;
-  DateTime _sendingDate;
-  int? _idsender;
-  int? _idReceipt;
+  Messages({
+    required this.id,
+    required this.message,
+    required this.sendingDate,
+    required this.idSender,
+    required this.idReceipt,
+  });
 
-  Message(this._id, this._message, this._sendingDate, this._idsender, this._idReceipt);
-
-  int get idReceipt => _idReceipt!;
-  set idReceipt(int value) {
-    _idReceipt = value;
-  }
-
-  int get idsender => _idsender!;
-  set idsender(int value) {
-    _idsender = value;
-  }
-
-  DateTime get sendingDate => _sendingDate;
-  set sendingDate(DateTime value) {
-    _sendingDate = value;
-  }
-
-  String get message => _message!;
-  set message(String value) {
-    _message = value;
-  }
-
-  int get id => _id!;
-  set id(int value) {
-    _id = value;
-  }
-
-  // chuyen doi Object sang JSON
-  Map<String, dynamic> toJson() {
-    return {
-      'id': _id,
-      'message': _message,
-      'sendingDate': _sendingDate.toIso8601String(), // Convert DateTime to String
-      'idSender': _idsender,
-      'idReceipt': _idReceipt,
-    };
-  }
-
-  // chuyen doi JSON sang Object
-  static Message fromJson(Map<String, dynamic> json) {
-    return Message(
-      json['id'],
-      json['message'],
-      DateTime.parse(json['sendingDate']), // Convert String to DateTime
-      json['idsender'],
-      json['idReceipt'],
+  factory Messages.fromJson(Map<String, dynamic> json) {
+    return Messages(
+      id: json['id'],
+      message: json['message'],
+      sendingDate: DateTime.parse(json['sendingDate']), // Parse chuỗi ISO 8601
+      idSender: json['idSender'],
+      idReceipt: json['idReceipt'],
     );
   }
+
+
+  // Chuyển đổi đối tượng Messages thành JSON
+  Map<String, dynamic> toJson() {
+    return {
+      'id': id,
+      'message': message,
+      'sendingDate': sendingDate.toIso8601String(),
+      'idSender': idSender,
+      'idReceipt': idReceipt,
+    };
+  }
 }
-
-
