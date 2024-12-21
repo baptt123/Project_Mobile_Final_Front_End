@@ -5,9 +5,9 @@ import '../dto/notificationsdto.dart';
 import '../dto/postdto.dart';
 import '../dto/storydto.dart';
 class CallingAPI {
-  static const String postURL = 'http://192.168.5.248:8080/api/post/getpost'; // URL API
-  static const String storyURL= 'http://192.168.5.248:8080/api/story/getstories';
-  static const String notificationURL='http://192.168.5.248:8080/api/notification/get-notification';
+  static const String postURL = 'http://192.168.14.16:8080/api/post/getpost'; // URL API
+  static const String storyURL= 'http://192.168.14.16:8080/api/story/getstories';
+  static const String notificationURL='http://192.168.14.16:8080/api/notification/get-notification';
   static Future<List<PostDTO>> fetchPosts() async {
     final response = await http.get(Uri.parse(postURL));
 

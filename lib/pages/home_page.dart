@@ -187,7 +187,7 @@ class _HomePageState extends State<HomePage> {
   void _startListeningForNotifications() {
     SSEClient.subscribeToSSE(
       method: SSERequestType.GET,
-      url: 'http://192.168.5.248:8080/api/uploadfile/sse/upload', // URL của server SSE
+      url: 'http://192.168.14.16:8080/api/uploadfile/sse/upload', // URL của server SSE
       header: {
         "Accept": "text/event-stream",
         "Cache-Control": "no-cache",
