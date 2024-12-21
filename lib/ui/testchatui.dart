@@ -145,7 +145,7 @@ class _ChatScreenState extends State<ChatScreen> {
 
     // Kết nối tới WebSocket server
     _channel = WebSocketChannel.connect(
-      Uri.parse('ws://192.168.67.103:8080/chat'), // Đổi thành URL WebSocket server của bạn
+      Uri.parse('ws://192.168.14.16:8080/chat'), // Đổi thành URL WebSocket server của bạn
     );
 
     // Lắng nghe tin nhắn từ server

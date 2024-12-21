@@ -3,7 +3,6 @@ import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:image_picker/image_picker.dart';
-import 'package:video_player/video_player.dart';
 import 'package:http/http.dart' as http;
 import 'package:http_parser/http_parser.dart';
 
@@ -15,7 +14,7 @@ class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      title: 'Upload Media Demo',
+      title: 'Upload Image Demo',
       theme: ThemeData(
         primarySwatch: Colors.blue,
         textTheme: GoogleFonts.robotoTextTheme(),
@@ -31,15 +30,7 @@ class MyHomePage extends StatefulWidget {
 }
 
 class _MyHomePageState extends State<MyHomePage> {
-  File? _file; // Lưu trữ file đã chọn (ảnh hoặc video)
-  bool _isVideo = false; // Đánh dấu file là video hay không
-  VideoPlayerController? _videoController;
-
-  @override
-  void dispose() {
-    _videoController?.dispose();
-    super.dispose();
-  }
+  File? _image; // Lưu trữ file ảnh đã chọn
 
   @override
   Widget build(BuildContext context) {
@@ -55,7 +46,7 @@ class _MyHomePageState extends State<MyHomePage> {
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
                     Text(
-                      'Media Picker',
+                      'Image Picker',
                       style: TextStyle(color: Colors.white, fontSize: 18),
                     ),
                     Icon(Icons.battery_full, color: Colors.white),
@@ -64,7 +55,7 @@ class _MyHomePageState extends State<MyHomePage> {
               ),
               Expanded(
                 child: Center(
-                  child: _file == null
+                  child: _image == null
                       ? GestureDetector(
                     onTap: _showPickerMenu,
                     child: Icon(
@@ -73,16 +64,8 @@ class _MyHomePageState extends State<MyHomePage> {
                       size: 100,
                     ),
                   )
-                      : _isVideo
-                      ? _videoController != null &&
-                      _videoController!.value.isInitialized
-                      ? AspectRatio(
-                    aspectRatio: _videoController!.value.aspectRatio,
-                    child: VideoPlayer(_videoController!),
-                  )
-                      : CircularProgressIndicator()
                       : Image.file(
-                    _file!,
+                    _image!,
                     fit: BoxFit.cover,
                   ),
                 ),
@@ -95,15 +78,15 @@ class _MyHomePageState extends State<MyHomePage> {
                     ElevatedButton.icon(
                       onPressed: _showPickerMenu,
                       icon: Icon(Icons.photo_camera),
-                      label: Text("Chọn Media"),
+                      label: Text("Chọn Ảnh"),
                     ),
                     ElevatedButton.icon(
                       onPressed: () async {
-                        if (_file != null) {
-                          await _uploadFile(_file!, _isVideo);
+                        if (_image != null) {
+                          await _uploadFile(_image!);
                         } else {
                           ScaffoldMessenger.of(context).showSnackBar(
-                            SnackBar(content: Text('Vui lòng chọn file để chia sẻ')),
+                            SnackBar(content: Text('Vui lòng chọn ảnh để chia sẻ')),
                           );
                         }
                       },
@@ -131,15 +114,7 @@ class _MyHomePageState extends State<MyHomePage> {
                 leading: Icon(Icons.photo_library),
                 title: Text('Chọn ảnh'),
                 onTap: () {
-                  _pickMedia(isVideo: false);
-                  Navigator.of(context).pop();
-                },
-              ),
-              ListTile(
-                leading: Icon(Icons.video_library),
-                title: Text('Chọn video'),
-                onTap: () {
-                  _pickMedia(isVideo: true);
+                  _pickImage();
                   Navigator.of(context).pop();
                 },
               ),
@@ -150,49 +125,34 @@ class _MyHomePageState extends State<MyHomePage> {
     );
   }
 
-  Future<void> _pickMedia({required bool isVideo}) async {
+  Future<void> _pickImage() async {
     final ImagePicker picker = ImagePicker();
-    XFile? pickedFile;
-    if (isVideo) {
-      pickedFile = await picker.pickVideo(source: ImageSource.gallery);
-    } else {
-      pickedFile = await picker.pickImage(source: ImageSource.gallery);
-    }
+    final XFile? pickedFile = await picker.pickImage(source: ImageSource.gallery);
 
     if (pickedFile != null) {
       setState(() {
-        _file = File(pickedFile!.path);
-        _isVideo = isVideo;
+        _image = File(pickedFile.path);
       });
-
-      if (isVideo) {
-        _videoController = VideoPlayerController.file(_file!)
-          ..initialize().then((_) {
-            setState(() {});
-            _videoController!.play();
-          });
-      }
     }
   }
 
-  Future<void> _uploadFile(File file, bool isVideo) async {
-    var uri = Uri.parse('http://192.168.67.104:8080/api/getdata/uploadfilestory');
+  Future<void> _uploadFile(File file) async {
+    var uri = Uri.parse('http://192.168.14.16:8080/api/uploadfile/uploadfilestory');
     var request = http.MultipartRequest('POST', uri);
 
     request.files.add(await http.MultipartFile.fromPath(
       'file',
-      file.path,
-      contentType: MediaType(isVideo ? 'video' : 'image', isVideo ? 'mp4' : 'jpeg'),
+      file.path
     ));
 
     var response = await request.send();
     if (response.statusCode == 200) {
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('File đã được chia sẻ thành công!')),
+        SnackBar(content: Text('Ảnh đã được chia sẻ thành công!')),
       );
     } else {
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Có lỗi khi chia sẻ file')),
+        SnackBar(content: Text('Có lỗi khi chia sẻ ảnh')),
       );
     }
   }
