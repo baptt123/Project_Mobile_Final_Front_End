@@ -1,63 +1,76 @@
-// import 'dart:math';
-//
-// import 'package:faker/faker.dart';
-//
-// class User {
-//   final String profileImage;
-//   final String bannerImage;
-//   final String username;
-//   final String fullname;
-//   final String bio;
-//   final int followersCount;
-//   final int followingCount;
-//   final bool isMe;
-//
-//   const User({
-//     required this.profileImage,
-//     required this.bannerImage,
-//     required this.username,
-//     required this.fullname,
-//     required this.bio,
-//     required this.followersCount,
-//     required this.followingCount,
-//     this.isMe = false,
-//   });
-//
-//   static final List<User> dummyUsers = List.generate(
-//     5,
-//     (index) {
-//       final Faker faker = Faker();
-//       return User(
-//         isMe: index == 0,
-//         profileImage: faker.image.loremPicsum(
-//           random: Random().nextInt(5),
-//           width: 640,
-//           height: 640,
-//         ),
-//         bannerImage: faker.image.loremPicsum(
-//           random: Random().nextInt(5),
-//           width: 640,
-//           height: 480,
-//         ),
-//         username: faker.internet.userName(),
-//         fullname: faker.person.name(),
-//         bio: faker.lorem.sentence(),
-//         followersCount: Random().nextInt(1000),
-//         followingCount: Random().nextInt(1000),
-//       );
-//     },
-//   );
-// }
+import 'dart:convert';
+
 class User {
-  final String userName;
-  final String profileImagePath;
+  String id;
+  String username;
+  String password;
+  String email;
+  String fullName;
+  int gender; // 0: nam, 1: nữ
+  int followersCount;
+  int followingCount;
+  int status; // 0: offline, 1: online
+  String profileImagePath;
+  List<String> friends; // Danh sách ID bạn bè
+  List<String> postsSaved; // Danh sách bài viết đã lưu
+  List<String> postsShared; // Danh sách bài viết đã chia sẻ
 
-  User({required this.userName, required this.profileImagePath});
+  User({
+    required this.id,
+    required this.username,
+    required this.password,
+    required this.email,
+    required this.fullName,
+    required this.gender,
+    required this.followersCount,
+    required this.followingCount,
+    required this.status,
+    required this.profileImagePath,
+    required this.friends,
+    required this.postsSaved,
+    required this.postsShared,
+  });
 
+  // Phương thức để chuyển đổi từ JSON sang User
   factory User.fromJson(Map<String, dynamic> json) {
     return User(
-      userName: json['userName'],
-      profileImagePath: json['profileImagePath'],
+      id: json['id'] ?? '',
+      username: json['username'] ?? '',
+      password: json['password'] ?? '',
+      email: json['email'] ?? '',
+      fullName: json['fullName'] ?? '',
+      gender: json['gender'] ?? 0,
+      followersCount: json['followersCount'] ?? 0,
+      followingCount: json['followingCount'] ?? 0,
+      status: json['status'] ?? 0,
+      profileImagePath: json['profileImagePath'] ?? '',
+      friends: List<String>.from(json['friends'] ?? []),
+      postsSaved: List<String>.from(json['posts_saved'] ?? []),
+      postsShared: List<String>.from(json['posts_shared'] ?? []),
     );
+  }
+
+  // Phương thức để chuyển đổi từ User sang JSON
+  Map<String, dynamic> toJson() {
+    return {
+      'id': id,
+      'username': username,
+      'password': password,
+      'email': email,
+      'fullName': fullName,
+      'gender': gender,
+      'followersCount': followersCount,
+      'followingCount': followingCount,
+      'status': status,
+      'profileImagePath': profileImagePath,
+      'friends': friends,
+      'posts_saved': postsSaved,
+      'posts_shared': postsShared,
+    };
+  }
+
+  @override
+  String toString() {
+    return jsonEncode(toJson());
   }
 }

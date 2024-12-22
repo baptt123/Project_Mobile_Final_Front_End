@@ -153,7 +153,8 @@ import 'package:flutter_client_sse/constants/sse_request_type_enum.dart';
 import 'package:quick_social/common/common.dart';
 import 'package:quick_social/models/models.dart';
 import 'package:quick_social/pages/pages.dart';
-import 'package:flutter_client_sse/flutter_client_sse.dart'; // Thêm thư viện SSE
+import 'package:flutter_client_sse/flutter_client_sse.dart';
+import 'package:quick_social/wigetforuser/profile.dart'; // Thêm thư viện SSE
 
 class HomePage extends StatefulWidget {
   const HomePage({super.key});
@@ -187,7 +188,7 @@ class _HomePageState extends State<HomePage> {
   void _startListeningForNotifications() {
     SSEClient.subscribeToSSE(
       method: SSERequestType.GET,
-      url: 'http://192.168.14.16:8080/api/uploadfile/sse/upload', // URL của server SSE
+      url: 'http://192.168.5.248:8080/api/uploadfile/sse/upload', // URL của server SSE
       header: {
         "Accept": "text/event-stream",
         "Cache-Control": "no-cache",
@@ -241,10 +242,10 @@ class _HomePageState extends State<HomePage> {
     return PageView(
       controller: _pageController,
       onPageChanged: _pageChanged,
-      children: [
-        const FeedPage(),
-        const NotificationsPage(),
-        // ProfilePage(user: User.dummyUsers[0]),
+      children: const [
+        FeedPage(),
+        NotificationsPage(),
+        ProfileApp()
       ],
     );
   }
