@@ -1,227 +1,203 @@
-// import 'dart:convert';
-// import 'dart:math';
-// import 'package:flutter/material.dart';
-// import 'package:flutter_chat_ui/flutter_chat_ui.dart';
-// import 'package:flutter_chat_types/flutter_chat_types.dart' as types;
-// import 'package:web_socket_channel/web_socket_channel.dart';
-// import 'package:app_chat/model/message.dart'; // Import model Message
-//
-// void main() {
-//   runApp(MyApp());
-// }
-//
-// class MyApp extends StatelessWidget {
-//   @override
-//   Widget build(BuildContext context) {
-//     return MaterialApp(
-//       title: 'Flutter Chat UI',
-//       theme: ThemeData(
-//         primarySwatch: Colors.blue,
-//       ),
-//       home: ChatScreen(),
-//     );
-//   }
-// }
-//
-// class ChatScreen extends StatefulWidget {
-//   @override
-//   _ChatScreenState createState() => _ChatScreenState();
-// }
-//
-// class _ChatScreenState extends State<ChatScreen> {
-//   final List<types.Message> _messages = [];
-//   final types.User _currentUser = types.User(id: 'user1'); // Người dùng hiện tại
-//   late WebSocketChannel _channel;
-//
-//   @override
-//   void initState() {
-//     super.initState();
-//
-//     // Kết nối tới WebSocket server
-//     _channel = WebSocketChannel.connect(
-//       Uri.parse('ws://192.168.67.103:8080/chat'), // Đổi thành URL WebSocket server của bạn
-//     );
-//
-//     // Lắng nghe tin nhắn từ server
-//     _channel.stream.listen((data) {
-//       final decoded = json.decode(data);
-//
-//       // Chuyển đổi JSON sang đối tượng Message
-//       final newMessage = Messages.fromJson(decoded);
-//
-//       // Đổi thành types.Message để sử dụng với flutter_chat_types
-//       final chatMessage = types.TextMessage(
-//         author: types.User(id: newMessage.idSender.toString()), // Chuyển idSender thành String
-//         createdAt: newMessage.sendingDate.millisecondsSinceEpoch,
-//         id: newMessage.id.toString(),
-//         text: newMessage.message,
-//       );
-//
-//       setState(() {
-//         _messages.insert(0, chatMessage);
-//       });
-//     });
-//   }
-//
-//   @override
-//   void dispose() {
-//     // Đóng kết nối WebSocket khi không dùng nữa
-//     _channel.sink.close();
-//     super.dispose();
-//   }
-//
-//   void _onSendPressed(types.PartialText message) {
-//     final newMessage = Messages(
-//       id: Random().nextInt(1000),
-//       message: message.text,
-//       sendingDate: DateTime.now(),
-//       idSender: 1, // ID của người gửi (thay đổi theo người dùng thực tế)
-//       idReceipt: 2, // ID của người nhận (thay đổi theo người nhận thực tế)
-//     );
-//
-//     // Gửi tin nhắn qua WebSocket
-//     _channel.sink.add(json.encode(newMessage.toJson()));
-//
-//     setState(() {
-//       _messages.insert(0, types.TextMessage(
-//         author: _currentUser,
-//         createdAt: DateTime.now().millisecondsSinceEpoch,
-//         id: newMessage.id.toString(),
-//         text: message.text,
-//       ));
-//     });
-//   }
-//
-//   @override
-//   Widget build(BuildContext context) {
-//     return Scaffold(
-//       appBar: AppBar(title: Text('Chat')),
-//       body: Chat(
-//         messages: _messages,
-//         onSendPressed: _onSendPressed,
-//         user: _currentUser, // Chỉ định người dùng hiện tại
-//       ),
-//     );
-//   }
-// }
-import 'dart:convert';
-import 'dart:math';
 import 'package:flutter/material.dart';
-import 'package:flutter_chat_ui/flutter_chat_ui.dart';
-import 'package:flutter_chat_types/flutter_chat_types.dart' as types;
+import 'package:quick_social/api/callingapi.dart';
 import 'package:web_socket_channel/web_socket_channel.dart';
+import 'package:web_socket_channel/io.dart';
+import 'dart:convert';
+import 'package:http/http.dart' as http;
 
 import '../models/message.dart';
 
-void main() {
-  runApp(MyApp());
-}
+class ChatApp extends StatelessWidget {
+  final String username;
+  ChatApp({required this.username});
 
-class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      title: 'Flutter Chat UI',
-      theme: ThemeData(
-        primarySwatch: Colors.blue,
-      ),
-      home: ChatScreen(),
+      debugShowCheckedModeBanner: false,
+      theme: ThemeData.dark(),
+      home: ChatScreen(username: username),
     );
   }
 }
 
 class ChatScreen extends StatefulWidget {
+  final String username;
+  ChatScreen({required this.username});
+
   @override
   _ChatScreenState createState() => _ChatScreenState();
 }
 
 class _ChatScreenState extends State<ChatScreen> {
-  final List<types.Message> _messages = [];
-  final types.User _currentUser = types.User(id: 'user1'); // Người dùng hiện tại
+  final TextEditingController _controller = TextEditingController();
   late WebSocketChannel _channel;
+
+  final List<Map<String, dynamic>> messages = [];
 
   @override
   void initState() {
     super.initState();
+    _fetchMessages(); // Fetch messages from API on initialization
 
-    // Kết nối tới WebSocket server
-    _channel = WebSocketChannel.connect(
-      Uri.parse('ws://192.168.14.16:8080/chat'), // Đổi thành URL WebSocket server của bạn
-    );
+    _channel = IOWebSocketChannel.connect('ws://192.168.67.107:8080/chat?username=${widget.username}');
 
-    // Lắng nghe tin nhắn từ server
     _channel.stream.listen((data) {
-      final decoded = json.decode(data);
-
-      // Chuyển đổi JSON sang đối tượng Message
-      final newMessage = Messages.fromJson(decoded);
-
-      // Đổi thành types.Message để sử dụng với flutter_chat_types
-      final chatMessage = types.TextMessage(
-        author: types.User(id: newMessage.idSender.toString()), // Chuyển idSender thành String
-        createdAt: newMessage.sendingDate.millisecondsSinceEpoch,
-        id: newMessage.id.toString(),
-        text: newMessage.message,
-      );
-
+      final decodedMessage = json.decode(data);
       setState(() {
-        _messages.insert(0, chatMessage);
+        messages.insert(0, { // Add new messages to the top
+          'id': decodedMessage['id'],
+          'sender': decodedMessage['idSender'],
+          'text': decodedMessage['message'],
+          'sendingDate': DateTime.parse(decodedMessage['sendingDate']),
+        });
       });
     });
   }
 
-  @override
-  void dispose() {
-    // Đóng kết nối WebSocket khi không dùng nữa
-    _channel.sink.close();
-    super.dispose();
-  }
-
-  void _onSendPressed(types.PartialText message) {
-    final newMessage = Messages(
-      id: Random().nextInt(1000),
-      message: message.text,
-      sendingDate: DateTime.now(),
-      idSender: 1, // ID của người gửi (thay đổi theo người dùng thực tế)
-      idReceipt: 2, // ID của người nhận (thay đổi theo người nhận thực tế)
-    );
-
-    // Gửi tin nhắn qua WebSocket
-    _channel.sink.add(json.encode(newMessage.toJson()));
+  Future<void> _fetchMessages() async {
+    try {
+      final fetchedMessages = await CallingAPI.fetchMessages();
+      setState(() {
+        messages.addAll(fetchedMessages);
+      });
+    } catch (error) {
+      print('Error fetching messages: $error');
+    }
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: Text('Chat')),
-      body: Chat(
-        messages: _messages,
-        onSendPressed: _onSendPressed,
-        user: _currentUser, // Chỉ định người dùng hiện tại
-        bubbleBuilder: _bubbleBuilder, // Tùy chỉnh hiển thị tin nhắn
+      appBar: AppBar(
+        title: Text('💬 chém-gió'),
+      ),
+      body: Column(
+        children: [
+          Expanded(
+            child: ListView.builder(
+              reverse: true,
+              itemCount: messages.length,
+              itemBuilder: (context, index) {
+                final message = messages[index];
+                return Align(
+                  alignment: Alignment.centerLeft,
+                  child: Padding(
+                    padding: const EdgeInsets.symmetric(
+                      vertical: 5.0,
+                      horizontal: 10.0,
+                    ),
+                    child: Container(
+                      padding: const EdgeInsets.all(10.0),
+                      decoration: BoxDecoration(
+                        color: Colors.grey[800],
+                        borderRadius: BorderRadius.circular(10.0),
+                      ),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(
+                            "User: ${message['sender']}",
+                            style: TextStyle(
+                              fontWeight: FontWeight.bold,
+                              color: Colors.white70,
+                            ),
+                          ),
+                          SizedBox(height: 5.0),
+                          Text(
+                            message['text'],
+                            style: TextStyle(
+                              color: Colors.white,
+                            ),
+                          ),
+                          SizedBox(height: 5.0),
+                          Text(
+                            "${message['sendingDate']}",
+                            style: TextStyle(
+                              fontSize: 12,
+                              color: Colors.white54,
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ),
+                );
+              },
+            ),
+          ),
+          Divider(height: 1),
+          Padding(
+            padding: const EdgeInsets.all(8.0),
+            child: Row(
+              children: [
+                Expanded(
+                  child: TextField(
+                    controller: _controller,
+                    decoration: InputDecoration(
+                      hintText: 'Nhập tin nhắn...',
+                      border: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(20.0),
+                      ),
+                    ),
+                  ),
+                ),
+                SizedBox(width: 10),
+                IconButton(
+                  icon: Icon(Icons.send),
+                  onPressed: () {
+                    if (_controller.text.isNotEmpty) {
+                      final message = Messages(
+                        id: DateTime.now().millisecondsSinceEpoch.toString(),
+                        message: _controller.text,
+                        sendingDate: DateTime.now(),
+                        idSender: 1, // Example sender ID
+                        idReceipt: 2, // Example receipt ID
+                      );
+
+                      _channel.sink.add(json.encode(message.toJson()));
+                      setState(() {
+                        messages.insert(0, {
+                          'id': message.id,
+                          'sender': message.idSender,
+                          'text': message.message,
+                          'sendingDate': message.sendingDate,
+                        });
+                      });
+                      _controller.clear();
+                    }
+                  },
+                ),
+              ],
+            ),
+          ),
+        ],
       ),
     );
   }
 
-  /// Tùy chỉnh hiển thị bong bóng tin nhắn (luôn ở bên trái)
-  Widget _bubbleBuilder(
-      Widget child, {
-        required types.Message message,
-        required bool nextMessageInGroup,
-      }) {
-    return Align(
-      alignment: Alignment.centerLeft,
-      child: Container(
-        margin: EdgeInsets.symmetric(vertical: 4, horizontal: 8),
-        padding: EdgeInsets.all(10),
-        decoration: BoxDecoration(
-          color: Colors.grey[300], // Màu nền cho tin nhắn
-          borderRadius: BorderRadius.circular(12),
-        ),
-        child: child,
-      ),
-    );
+  @override
+  void dispose() {
+    _controller.dispose();
+    _channel.sink.close();
+    super.dispose();
   }
 }
 
-
+// services/message_service.dart
+class MessageService {
+  static Future<List<Map<String, dynamic>>> fetchMessages() async {
+    final response = await http.get(Uri.parse('http://192.168.67.107:8080/api/messages'));
+    if (response.statusCode == 200) {
+      final List<dynamic> fetchedMessages = json.decode(response.body);
+      return fetchedMessages.map((message) => {
+        'id': message['id'],
+        'sender': message['idSender'],
+        'text': message['message'],
+        'sendingDate': DateTime.parse(message['sendingDate']),
+      }).toList();
+    } else {
+      throw Exception('Failed to fetch messages: ${response.statusCode}');
+    }
+  }
+}

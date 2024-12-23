@@ -1,13 +1,13 @@
 class Story{
-int? _id;
+String? _id;
 int? _idUser;
 String _imageStory;
 
-int? get id => _id;
+String? get id => _id;
 
 Story(this._id, this._idUser, this._imageStory);
 
-  set id(int? value) {
+  set id(String? value) {
     _id = value;
   }
 

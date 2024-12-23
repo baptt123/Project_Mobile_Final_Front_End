@@ -1,5 +1,10 @@
+import 'package:flutter/material.dart';
+import 'package:web_socket_channel/web_socket_channel.dart';
+import 'package:web_socket_channel/io.dart';
+import 'dart:convert';
+
 class Messages {
-  final int id;
+  final String id;
   final String message;
   final DateTime sendingDate;
   final int idSender;
@@ -17,14 +22,12 @@ class Messages {
     return Messages(
       id: json['id'],
       message: json['message'],
-      sendingDate: DateTime.parse(json['sendingDate']), // Parse chuỗi ISO 8601
+      sendingDate: DateTime.parse(json['sendingDate']),
       idSender: json['idSender'],
       idReceipt: json['idReceipt'],
     );
   }
 
-
-  // Chuyển đổi đối tượng Messages thành JSON
   Map<String, dynamic> toJson() {
     return {
       'id': id,

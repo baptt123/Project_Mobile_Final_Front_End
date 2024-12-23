@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:get_storage/get_storage.dart';
 import 'package:http/http.dart' as http;
 import 'package:quick_social/pages/home_page.dart';
+import 'package:quick_social/pages/testchatui.dart';
 import 'package:quick_social/wigetforuser/forgotpassword.dart';
 import 'package:quick_social/wigetforuser/profile.dart';
 import 'package:quick_social/wigetforuser/signup.dart';
@@ -55,7 +56,7 @@ class _LoginScreenState extends State<LoginScreen> {
           // Chuyển hướng đến màn hình khác (ShowUser)
           Navigator.pushReplacement(
             context,
-            MaterialPageRoute(builder: (context) =>  HomePage()),
+            MaterialPageRoute(builder: (context) =>  ChatApp(username: username)),
           );
         } else {
           // Trường hợp thông tin không hợp lệ
