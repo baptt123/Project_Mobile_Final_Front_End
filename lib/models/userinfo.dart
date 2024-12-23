@@ -13,10 +13,4 @@ class UserInfo {
       profileImagePath: json['profileImage_path'] ?? '',
     );
   }
-  Map<String, dynamic> toJson() {
-    return {
-      'userName': userName,
-      'profileImage_path': profileImagePath,
-    };
-  }
 }

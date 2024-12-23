@@ -30,16 +30,26 @@ environment:
 dependencies:
   flutter:
     sdk: flutter
-  get_storage: ^2.0.3
   google_fonts: ^6.2.1
   faker: ^2.2.0
   story: ^1.1.0
-
   # The following adds the Cupertino Icons font to your application.
   # Use with the CupertinoIcons class for iOS style icons.
   cupertino_icons: ^1.0.8
   flutter_client_sse: ^2.0.3
-
+  story_view: ^0.16.5
+  stories_page_view: ^0.0.5
+  story_page_view: ^1.0.0
+  image_picker: ^0.8.5+3    # Cho phép chọn ảnh và video
+  file_picker: ^5.2.4       # Cho phép chọn các loại file khác
+  http: ^1.2.2
+  font_awesome_flutter: ^10.8.0
+  video_player: ^2.9.2
+  flutter_chat_ui: ^1.6.15
+  eventflux: ^2.2.1
+  get_storage: ^2.0.3
+  web_socket_channel: ^3.0.1
+  uuid: ^4.5.1
 dev_dependencies:
   flutter_test:
     sdk: flutter
@@ -65,8 +75,6 @@ flutter:
   # assets:
   #   - images/a_dot_burr.jpeg
   #   - images/a_dot_ham.jpeg
-  assets:
-    - assets/img/
   # An image asset can refer to one or more resolution-specific "variants", see
   # https://flutter.dev/assets-and-images/#resolution-aware
 

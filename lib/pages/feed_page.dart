@@ -168,6 +168,7 @@ import 'package:quick_social/api/callingapi.dart';
 import 'package:quick_social/dto/storydto.dart';
 import 'package:story/story_page_view.dart'; // Thư viện story
 import '../dto/postdto.dart';
+import '../models/story.dart';
 import '../widgets/post_card.dart';
 import '../widgets/layout/responsive_padding.dart';
 
@@ -179,7 +180,7 @@ class FeedPage extends StatefulWidget {
 }
 
 class _FeedPageState extends State<FeedPage> {
-  List<StoryDTO> _stories = []; // Danh sách stories
+  List<Story> _stories = []; // Danh sách stories
   List<PostDTO> _posts = []; // Danh sách posts
   bool _isLoadingStories = true; // Trạng thái loading stories
   bool _isLoadingPosts = true; // Trạng thái loading posts
