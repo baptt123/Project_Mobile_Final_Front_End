@@ -1,8 +1,11 @@
 import 'package:flutter/material.dart';
-import 'package:image_picker/image_picker.dart';
+
 import 'package:http/http.dart' as http;
 import 'dart:io';
+
+import 'package:image_picker/image_picker.dart';
 import 'package:video_player/video_player.dart';
+
 
 void main() {
   runApp(Createnewpost());

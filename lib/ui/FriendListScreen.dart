@@ -1,10 +1,11 @@
 import 'dart:convert';
 import 'package:http/http.dart' as http;
 // import 'package:flutter/material.dart';
-import 'package:app_chat/model/friend.dart';
+
 import 'package:flutter/material.dart';
 
 import '../calling_api/callingapi.dart';
+import '../model/friend.dart';
 
 // // Hàm chạy ứng dụng
 // void main() {
