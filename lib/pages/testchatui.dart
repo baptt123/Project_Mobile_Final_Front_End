@@ -38,16 +38,16 @@ class _ChatScreenState extends State<ChatScreen> {
   @override
   void initState() {
     super.initState();
-    _fetchMessages(); // Fetch messages from API on initialization
+    _fetchMessages(); // lay tin nhan tu API
 
-    _channel = IOWebSocketChannel.connect('ws://192.168.67.107:8080/chat?username=${widget.username}');
+    _channel = IOWebSocketChannel.connect('ws://192.168.100.143:8080/chat?username=${widget.username}');
 
     _channel.stream.listen((data) {
       final decodedMessage = json.decode(data);
       setState(() {
-        messages.insert(0, { // Add new messages to the top
+        messages.insert(0, {//them tin nhan moi o dau
           'id': decodedMessage['id'],
-          'sender': decodedMessage['idSender'],
+          'sender': decodedMessage['userNameSender'],
           'text': decodedMessage['message'],
           'sendingDate': DateTime.parse(decodedMessage['sendingDate']),
         });
@@ -151,15 +151,15 @@ class _ChatScreenState extends State<ChatScreen> {
                         id: DateTime.now().millisecondsSinceEpoch.toString(),
                         message: _controller.text,
                         sendingDate: DateTime.now(),
-                        idSender: 1, // Example sender ID
-                        idReceipt: 2, // Example receipt ID
+                       userNameSender: widget.username, // username nguoi gui
+                        userNameReceiver: 'userNameReceiver', // username nguoi nhan
                       );
 
                       _channel.sink.add(json.encode(message.toJson()));
                       setState(() {
                         messages.insert(0, {
                           'id': message.id,
-                          'sender': message.idSender,
+                          'sender': message.userNameSender,
                           'text': message.message,
                           'sendingDate': message.sendingDate,
                         });

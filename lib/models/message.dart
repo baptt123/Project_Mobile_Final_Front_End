@@ -7,15 +7,15 @@ class Messages {
   final String id;
   final String message;
   final DateTime sendingDate;
-  final int idSender;
-  final int idReceipt;
+  final String userNameSender;
+  final String userNameReceiver;
 
   Messages({
     required this.id,
     required this.message,
     required this.sendingDate,
-    required this.idSender,
-    required this.idReceipt,
+    required this.userNameSender,
+    required this.userNameReceiver
   });
 
   factory Messages.fromJson(Map<String, dynamic> json) {
@@ -23,8 +23,8 @@ class Messages {
       id: json['id'],
       message: json['message'],
       sendingDate: DateTime.parse(json['sendingDate']),
-      idSender: json['idSender'],
-      idReceipt: json['idReceipt'],
+      userNameSender: json['userNameSender'],
+      userNameReceiver: json['userNameReceiver']
     );
   }
 
@@ -33,8 +33,8 @@ class Messages {
       'id': id,
       'message': message,
       'sendingDate': sendingDate.toIso8601String(),
-      'idSender': idSender,
-      'idReceipt': idReceipt,
+      'userNameSender':userNameSender,
+      'userNameReceiver':userNameReceiver
     };
   }
 }
