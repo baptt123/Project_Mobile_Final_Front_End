@@ -137,7 +137,7 @@ class CreateNewStoryState extends State<CreateNewStory> {
   }
 
   Future<void> _uploadFile(File file) async {
-    var uri = Uri.parse('http://192.168.14.16:8080/api/uploadfile/uploadfilestory');
+    var uri = Uri.parse('http://192.168.67.107:8080/api/uploadfile/uploadfilestory');
     var request = http.MultipartRequest('POST', uri);
 
     request.files.add(await http.MultipartFile.fromPath(
