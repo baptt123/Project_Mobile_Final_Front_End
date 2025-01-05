@@ -7,10 +7,10 @@ import 'package:http/http.dart' as http;
 import 'package:http_parser/http_parser.dart';
 
 void main() {
-  runApp(MyApp());
+  runApp(Createstory());
 }
 
-class MyApp extends StatelessWidget {
+class Createstory extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
@@ -19,17 +19,17 @@ class MyApp extends StatelessWidget {
         primarySwatch: Colors.blue,
         textTheme: GoogleFonts.robotoTextTheme(),
       ),
-      home: MyHomePage(),
+      home: CreateNewStory(),
     );
   }
 }
 
-class MyHomePage extends StatefulWidget {
+class CreateNewStory extends StatefulWidget {
   @override
-  _MyHomePageState createState() => _MyHomePageState();
+  CreateNewStoryState createState() => CreateNewStoryState();
 }
 
-class _MyHomePageState extends State<MyHomePage> {
+class CreateNewStoryState extends State<CreateNewStory> {
   File? _image; // Lưu trữ file ảnh đã chọn
 
   @override
@@ -137,7 +137,7 @@ class _MyHomePageState extends State<MyHomePage> {
   }
 
   Future<void> _uploadFile(File file) async {
-    var uri = Uri.parse('http://192.168.14.16:8080/api/uploadfile/uploadfilestory');
+    var uri = Uri.parse('http://192.168.67.107:8080/api/uploadfile/uploadfilestory');
     var request = http.MultipartRequest('POST', uri);
 
     request.files.add(await http.MultipartFile.fromPath(

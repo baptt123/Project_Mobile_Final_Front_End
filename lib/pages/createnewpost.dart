@@ -33,7 +33,7 @@ class CreatePostWidget extends StatefulWidget {
 class _CreatePostWidgetState extends State<CreatePostWidget> {
   File? _selectedFile;
   final ImagePicker _picker = ImagePicker();
-  final String _uploadUrl = 'http://192.168.14.16:8080/api/uploadfile/uploadfile';
+  final String _uploadUrl = 'http://192.168.67.107:8080/api/uploadfile/uploadfile';
   String _fileType = "image";
   final TextEditingController _captionController = TextEditingController();
   final TextEditingController _userNameController = TextEditingController();
