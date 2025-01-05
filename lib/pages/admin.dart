@@ -81,7 +81,7 @@ class _UserListState extends State<UserList> {
         if (snapshot.connectionState == ConnectionState.waiting) {
           return Center(child: CircularProgressIndicator());
         } else if (snapshot.hasError) {
-          return Center(child: Text('Error: ${snapshot.error}'));
+          return Center(child: Text('Lỗi: ${snapshot.error}'));
         } else if (!snapshot.hasData || snapshot.data!.isEmpty) {
           return Center(child: Text('Không có người dùng'));
         }
@@ -93,9 +93,12 @@ class _UserListState extends State<UserList> {
             final user = users[index];
             return ListTile(
               leading: CircleAvatar(
-                backgroundImage: NetworkImage(user.profileImagePath),
+                // Kiểm tra null cho profileImagePath trước khi sử dụng
+                backgroundImage: user.profileImagePath != null
+                    ? NetworkImage(user.profileImagePath!) // Dùng dấu "!" để chắc chắn là không null
+                    : NetworkImage('https://via.placeholder.com/150'), // Placeholder khi null
               ),
-              title: Text(user.fullName),
+              title: Text(user.fullName ?? 'Chưa có tên'), // Hiển thị "Chưa có tên" nếu fullName là null
               subtitle: Text('Giới tính: ${user.gender == 1 ? 'Nam' : 'Nữ'}'),
             );
           },
@@ -104,6 +107,8 @@ class _UserListState extends State<UserList> {
     );
   }
 }
+
+
 
 // Hiển thị danh sách bài viết
 class PostList extends StatefulWidget {
