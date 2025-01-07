@@ -422,10 +422,13 @@ import 'package:quick_social/wigetforuser/profile.dart';
 import 'package:quick_social/common/common.dart';
 
 class HomePage extends StatefulWidget {
-  const HomePage({super.key});
+  final String? username;
+  const HomePage({super.key, this.username});
 
-  static Route<void> route() {
-    return MaterialPageRoute<void>(builder: (_) => const HomePage());
+  static Route<void> route({String? username}) {
+    return MaterialPageRoute<void>(
+        builder: (_) => HomePage(username: username)
+    );
   }
 
   @override
@@ -484,10 +487,9 @@ class _HomePageState extends State<HomePage> {
     ];
 
     for (var endpoint in sseEndpoints) {
-      final url = endpoint['url']; // Lấy giá trị 'url' từ endpoint
+      final url = endpoint['url'] as String?;
 
-      // Kiểm tra nếu URL tồn tại và không phải null
-      if (url is String && url.isNotEmpty) {
+      if (url != null && url.isNotEmpty) {
         SSEClient.subscribeToSSE(
           method: SSERequestType.GET,
           url: url,
@@ -496,26 +498,54 @@ class _HomePageState extends State<HomePage> {
             "Cache-Control": "no-cache",
           },
         ).listen((event) {
-          // Nếu có data trong sự kiện, gọi callback
           if (event.data != null) {
             endpoint['callback']?.call();
           }
         }, onError: (error) {
-          // Xử lý lỗi nếu có
           debugPrint("Error on SSE for endpoint $url: $error");
         });
       } else {
-        // In ra thông báo lỗi nếu URL không hợp lệ
         debugPrint("Error: Invalid URL for one of the endpoints");
       }
     }
   }
 
-
-
   void _updateState(VoidCallback callback) {
     if (mounted) {
       setState(callback);
+    }
+  }
+
+  void _navigateToStory(int index) {
+    if (index == 4) { // Index for Create Story
+      if (widget.username != null && widget.username!.isNotEmpty) {
+        Navigator.push(
+          context,
+          MaterialPageRoute(
+            builder: (context) => Createstory(username: widget.username),
+          ),
+        );
+      } else {
+        // Handle case when username is null or empty
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text('Username not available. Please login first.'),
+          ),
+        );
+      }
+    } else {
+      _pageChanged(index);
+    }
+  }
+
+  void _pageChanged(int value) {
+    _updateState(() {
+      if (value == 1) _hasNotification = false;
+      _pageIndex = value;
+    });
+
+    if (_pageController.hasClients) {
+      _pageController.jumpToPage(value);
     }
   }
 
@@ -537,27 +567,17 @@ class _HomePageState extends State<HomePage> {
     );
   }
 
-  void _pageChanged(int value) {
-    _updateState(() {
-      if (value == 1) _hasNotification = false;
-      _pageIndex = value;
-    });
-
-    if (_pageController.hasClients) {
-      _pageController.jumpToPage(value);
-    }
-  }
-
   Widget _buildPageView() {
     return PageView(
       controller: _pageController,
       onPageChanged: _pageChanged,
+      physics: const NeverScrollableScrollPhysics(), // Disable swipe navigation
       children: [
         const FeedPage(),
         const NotificationsPage(),
         const ProfileApp(),
         Createnewpost(),
-        Createstory(),
+        Createstory(username: widget.username),
       ],
     );
   }
@@ -568,7 +588,7 @@ class _HomePageState extends State<HomePage> {
 
     return NavigationRail(
       selectedIndex: _pageIndex,
-      onDestinationSelected: _pageChanged,
+      onDestinationSelected: _navigateToStory,
       extended: context.isDesktop,
       labelType: context.isDesktop
           ? NavigationRailLabelType.none
@@ -594,7 +614,7 @@ class _HomePageState extends State<HomePage> {
       labelBehavior: NavigationDestinationLabelBehavior.alwaysHide,
       selectedIndex: _pageIndex,
       height: 65,
-      onDestinationSelected: _pageChanged,
+      onDestinationSelected: _navigateToStory,
       destinations: [
         _navDestination(Icons.home_outlined, Icons.home, 'Home', theme),
         _notificationNavDestination(theme),

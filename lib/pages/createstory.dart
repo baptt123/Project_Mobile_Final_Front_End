@@ -13,6 +13,8 @@ void main() {
 }
 
 class Createstory extends StatelessWidget {
+   final String? username;
+   const Createstory({super.key, this.username});
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
