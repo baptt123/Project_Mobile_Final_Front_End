@@ -5,6 +5,7 @@ import 'package:quick_social/api/callingapi.dart';
 
 import '../dto/postdto.dart';
 import '../dto/userdto.dart';
+import '../wigetforuser/login.dart';
 
 void main() {
   runApp(MyApp());
@@ -14,18 +15,18 @@ class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      home: HomeScreen(),
+      home: AdminScreen(),
     );
   }
 }
 
 // Widget HomeScreen
-class HomeScreen extends StatefulWidget {
+class AdminScreen extends StatefulWidget {
   @override
-  _HomeScreenState createState() => _HomeScreenState();
+  _AdminScreenState createState() => _AdminScreenState();
 }
 
-class _HomeScreenState extends State<HomeScreen> with SingleTickerProviderStateMixin {
+class _AdminScreenState extends State<AdminScreen> with SingleTickerProviderStateMixin {
   late TabController _tabController;
 
   @override
@@ -38,6 +39,15 @@ class _HomeScreenState extends State<HomeScreen> with SingleTickerProviderStateM
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
+        leading:  IconButton(
+          icon: Icon(Icons.arrow_back),
+          onPressed: () {
+            // Điều hướng về màn hình đăng nhập
+             Navigator.of(context).pushReplacement(
+            MaterialPageRoute(builder: (context) => LoginScreen()),
+             );
+          },
+        ),
         title: Text('Admin Panel'),
         bottom: TabBar(
           controller: _tabController,
