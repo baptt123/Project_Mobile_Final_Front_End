@@ -1,25 +1,29 @@
 class Friend {
   String id;
-  String name;
-  String? profileImageUrl;
+  String fullName;
+  String? profileImagePath;
   bool isFavorite;// Không cần nullable vì đã có giá trị mặc định
   bool isFollowing;
 
   // Constructor
   Friend({
     required this.id,
-    required this.name,
-    this.profileImageUrl,
+    required this.fullName,
+    this.profileImagePath,
     this.isFavorite = false,
     this.isFollowing = false,
   });
+  bool isFriend(Friend other) {
+    // Kiểm tra xem nếu ID của bạn là trong danh sách followers của người kia
+    return other.isFollowing && this.isFollowing;
+  }
 
   // Chuyển đối tượng Friend sang JSON (gửi lên server)
   Map<String, dynamic> toJSON() {
     return {
       'id': id,
-      'name': name,
-      'profileImageUrl': profileImageUrl,
+      'fullname': fullName,
+      'profileImagePath': profileImagePath,
       'isFavorite': isFavorite,
       'isFollowing': isFollowing,
     };
@@ -29,8 +33,8 @@ class Friend {
   factory Friend.fromJSON(Map<String, dynamic> json) {
     return Friend(
       id: json['id'].toString(),
-      name: json['name'],
-      profileImageUrl: json['profileImageUrl'],  // Có thể là null
+      fullName: json['fullname']?.toString() ??'Vô Danh',
+      profileImagePath: json['profileImagePath'] as String?,  // Có thể là null
       isFavorite: json['isFavorite'] ?? false,   // Nếu không có thì mặc định là false
       isFollowing: json['isFollowing'] ?? false, // Đảm bảo là false nếu không có giá trị
     );
