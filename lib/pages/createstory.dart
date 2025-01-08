@@ -6,11 +6,15 @@ import 'package:image_picker/image_picker.dart';
 import 'package:http/http.dart' as http;
 import 'package:http_parser/http_parser.dart';
 
+import 'home_page.dart';
+
 void main() {
   runApp(Createstory());
 }
 
 class Createstory extends StatelessWidget {
+   final String? username;
+   const Createstory({super.key, this.username});
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
@@ -19,7 +23,31 @@ class Createstory extends StatelessWidget {
         primarySwatch: Colors.blue,
         textTheme: GoogleFonts.robotoTextTheme(),
       ),
-      home: CreateNewStory(),
+      home: Scaffold(
+        appBar: AppBar(
+          leading: Builder(
+            builder: (BuildContext context) {
+              return IconButton(
+                icon: const Icon(Icons.arrow_back),
+                onPressed: () {
+                  // Pop the current route if there's a previous route
+                  if (Navigator.canPop(context)) {
+                    Navigator.pop(context);
+                  } else {
+                    // Navigate to home if there's no previous route
+                    Navigator.pushReplacement(
+                      context,
+                      MaterialPageRoute(builder: (context) => HomePage()),
+                    );
+                  }
+                },
+              );
+            },
+          ),
+          title: Text('Create Story'),
+        ),
+        body: CreateNewStory(),
+      ),
     );
   }
 }

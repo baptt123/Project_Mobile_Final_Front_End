@@ -4,20 +4,47 @@ import 'package:http/http.dart' as http;
 import 'dart:io';
 import 'package:video_player/video_player.dart';
 
+import 'home_page.dart';
+
 void main() {
   runApp(Createnewpost());
 }
 
 class Createnewpost extends StatelessWidget {
+  final String? username;
+  const Createnewpost({super.key, this.username});
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
       home: Scaffold(
+        appBar: AppBar(
+          leading: Builder(
+            builder: (BuildContext context) {
+              return IconButton(
+                icon: const Icon(Icons.arrow_back),
+                onPressed: () {
+                  // Pop the current route if there's a previous route
+                  if (Navigator.canPop(context)) {
+                    Navigator.pop(context);
+                  } else {
+                    // Navigate to home if there's no previous route
+                    Navigator.pushReplacement(
+                      context,
+                      MaterialPageRoute(builder: (context) => HomePage()),
+                    );
+                  }
+                },
+              );
+            },
+          ),
+          title: Text('Create Post'),
+          backgroundColor: Colors.blueAccent,
+        ),
         backgroundColor: Colors.blueAccent,
         body: Center(
           child: Padding(
             padding: const EdgeInsets.all(16.0),
-            child: CreatePostWidget(),
+            child: CreatePostWidget(username: username),
           ),
         ),
       ),
@@ -26,6 +53,8 @@ class Createnewpost extends StatelessWidget {
 }
 
 class CreatePostWidget extends StatefulWidget {
+    final String? username;
+   const CreatePostWidget({Key? key, required this.username}) : super(key: key); // Constructor với required username
   @override
   _CreatePostWidgetState createState() => _CreatePostWidgetState();
 }
@@ -36,12 +65,16 @@ class _CreatePostWidgetState extends State<CreatePostWidget> {
   final String _uploadUrl = 'http://192.168.67.107:8080/api/uploadfile/uploadfile';
   String _fileType = "image";
   final TextEditingController _captionController = TextEditingController();
-  final TextEditingController _userNameController = TextEditingController();
+  late final TextEditingController _userNameController;
   VideoPlayerController? _videoController;
   double _currentPosition = 0.0;
   double _videoDuration = 1.0;
   bool _isPlaying = false;
-
+  @override
+  void initState() {
+    super.initState();
+    _userNameController = TextEditingController(text: widget.username); // Khởi tạo trong initState
+  }
   // Chọn ảnh hoặc video từ thư viện
   Future<void> _pickFile() async {
     // Hiển thị hộp thoại để chọn ảnh hoặc video
@@ -207,6 +240,7 @@ class _CreatePostWidgetState extends State<CreatePostWidget> {
             ),
             SizedBox(height: 8),
             TextField(
+              enabled: false,
               controller: _userNameController,
               decoration: InputDecoration(
                 hintText: "Enter your username",

@@ -1,17 +1,17 @@
 class Story{
-String? _id;
-int? _idUser;
+String _id;
+int _idUser;
 String _imageStory;
+final String _userName;
+String get id => _id;
 
-String? get id => _id;
+Story(this._id, this._idUser, this._imageStory,this._userName);
 
-Story(this._id, this._idUser, this._imageStory);
-
-  set id(String? value) {
+  set id(String value) {
     _id = value;
   }
 
-int? get idUser => _idUser;
+int get idUser => _idUser;
 
 String get imageStory => _imageStory;
 
@@ -19,7 +19,7 @@ String get imageStory => _imageStory;
     _imageStory = value;
   }
 
-  set idUser(int? value) {
+  set idUser(int value) {
     _idUser = value;
   }
 // Chuyển đổi Object sang JSON
@@ -29,6 +29,7 @@ Map<String, dynamic> toJson() {
     'idUser': _idUser,
     'imageStory': _imageStory,
     // 'caption': _caption,
+    'username':_userName
   };
 }
 // Chuyển đổi JSON sang Object
@@ -37,6 +38,7 @@ Map<String, dynamic> toJson() {
       json['id'],
       json['idUser'],
       json['imageStory'],
+      json['username']
       // json['caption'],
     );
   }
