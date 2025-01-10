@@ -5,12 +5,12 @@ import 'package:http/http.dart' as http;
 import '../model/friend.dart';
 import '../model/story.dart';
 
-class CallingAPI {
+class CallingAPIFriends {
 
 //api lay story
  static  Future<List<Story>> fetchStories() async {
   final response = await http.get(
-      Uri.parse('http://192.168.1.183:8080/api/story/getstories'));
+      Uri.parse('http://192.168.67.103:8080/api/story/getstories'));
 
   if (response.statusCode == 200) {
    List jsonResponse = json.decode(response.body);
@@ -20,7 +20,7 @@ class CallingAPI {
   }
  }
 
- static const String baseUrl = 'http://192.168.1.183:8080/api/friend';
+ static const String baseUrl = 'http://192.168.67.103:8080/api/friend';
 
  // Lấy danh sách bạn bè
  static Future<List<Map<String, dynamic>>> fetchFriends() async {
@@ -98,7 +98,7 @@ class CallingAPI {
   Future<List<Friend>> fetchSuggestedFriends(String userId) async {
   //192.168.1.183
   // final url = Uri.parse('http://192.168.88.234:8080/api/user/suggested-friends/$userId');
-   final url = Uri.parse('http://192.168.1.183:8080/api/user/suggested-friends/$userId');
+   final url = Uri.parse('http://192.168.67.103:8080/api/user/suggested-friends/$userId');
 
   try {
    final response = await http.get(url);
@@ -119,7 +119,7 @@ class CallingAPI {
 //  final String baseUrl = "http://192.168.1.183:8080/api/user";
  // Follow user
   Future<void> followUser(String currentUserId, String targetUserId) async {
-  final url = Uri.parse('http://192.168.1.183:8080/api/user/$currentUserId/follow/$targetUserId');
+  final url = Uri.parse('http://192.168.67.103:8080/api/user/$currentUserId/follow/$targetUserId');
   final response = await http.post(url);
   if (response.statusCode != 200) {
    throw Exception('Failed to follow user');
@@ -128,7 +128,7 @@ class CallingAPI {
 
  // Unfollow user
   Future<void> unfollowUser(String currentUserId, String targetUserId) async {
-  final url = Uri.parse('http://192.168.1.183:8080/api/user/$currentUserId/unfollow/$targetUserId');
+  final url = Uri.parse('http://192.168.67.103:8080/api/user/$currentUserId/unfollow/$targetUserId');
   final response = await http.delete(url);
   if (response.statusCode != 200) {
    throw Exception('Failed to unfollow user');
@@ -138,7 +138,7 @@ class CallingAPI {
 // call api hien thi followers
 Future<List<Friend>> fetchfollowers(String userId) async{
   final response = await http.get(
-   Uri.parse('http://192.168.1.183:8080/followers?userId=$userId'),
+   Uri.parse('http://192.168.67.103:8080/followers?userId=$userId'),
    headers: {'Content-Type': 'application/json'},
   );
 

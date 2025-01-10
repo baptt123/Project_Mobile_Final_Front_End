@@ -29,13 +29,13 @@ class _FriendListSceenState extends State<FriendListScreen>{
 
 void initState(){
   super.initState();
-  _friendsFuture = CallingAPI.fetchFriends();
+  _friendsFuture = CallingAPIFriends.fetchFriends() as Future<List<Friend>>;
   _searchController.addListener(_filterFriends);
   _loadFriends();
 }
 void _loadFriends() async{
   try{
-    List<Friend> friends = await CallingAPI.fetchFriends();
+    List<Friend> friends = (await CallingAPIFriends.fetchFriends()).cast<Friend>();
     setState(() {
       _allFriends = friends;
       _filteredFriends = friends;
@@ -47,12 +47,12 @@ void _loadFriends() async{
 void _filterFriends(){
   String query = _searchController.text.toLowerCase();
   setState(() {
-    _filteredFriends = _allFriends.where((friend) => friend.name.toLowerCase().contains(query)).toList();
+    _filteredFriends = _allFriends.where((friend) => friend.fullName.toLowerCase().contains(query)).toList();
   });
 }
   void _refreshFriends() {
     setState(() {
-      _friendsFuture = CallingAPI.fetchFriends();
+      _friendsFuture = CallingAPIFriends.fetchFriends() as Future<List<Friend>>;
     });
   }
   
@@ -90,13 +90,13 @@ void _filterFriends(){
                   itemCount: friends.length,
                   itemBuilder: (context, index){
                     final friend = friends[index];
-                    return ListTile(leading: CircleAvatar(backgroundImage: NetworkImage(friend.profileImageUrl ??''),
+                    return ListTile(leading: CircleAvatar(backgroundImage: NetworkImage(friend.profileImagePath ??''),
                     ),
-                    title: Text(friend.name),
+                    title: Text(friend.fullName),
                     trailing: IconButton(
                         icon: Icon(Icons.delete, color: Colors.red),
                         onPressed: () async{
-                          await CallingAPI.deleteFriend(friend.id as int);
+                          await CallingAPIFriends.deleteFriend(friend.id as String);
                           _refreshFriends(); // cập nhật lại danh sách
                         },
                     ),
@@ -112,8 +112,8 @@ void _filterFriends(){
           child: Icon(Icons.add),
       onPressed:(){
         // ví dụ thêm bạn bè mới
-        Friend newFriend = Friend(id: "123", name: "New Friend", profileImageUrl: null, isFavorite: false);
-        CallingAPI.addFriend(newFriend).then((_){
+        Friend newFriend = Friend(id: "123", fullName: "New Friend", profileImagePath: null, isFavorite: false);
+        CallingAPIFriends.addFriend(newFriend as Map<String, dynamic>).then((_){
           _refreshFriends();
         });
       })

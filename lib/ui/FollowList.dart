@@ -18,7 +18,7 @@ class _FollowPageState extends State<FollowPageList> {
   @override
   void initState() {
     super.initState();
-    suggestedFriends =  CallingAPI().fetchSuggestedFriends(widget.currentUserId);
+    suggestedFriends =  CallingAPIFriends().fetchSuggestedFriends(widget.currentUserId);
   }
   // Future<void> fetchAndSetSuggestedFriends(String userId) async {
   //   final suggestedFriends = await CallingAPI().fetchSuggestedFriends(userId);
@@ -30,13 +30,13 @@ class _FollowPageState extends State<FollowPageList> {
     try {
       if (friend.isFollowing) {
         // Call API to unfollow
-        await CallingAPI().unfollowUser(widget.currentUserId, friend.id);
+        await CallingAPIFriends().unfollowUser(widget.currentUserId, friend.id);
         setState(() {
           friend.isFollowing = false;
         });
       } else {
         // Call API to follow
-        await CallingAPI().followUser(widget.currentUserId, friend.id);
+        await CallingAPIFriends().followUser(widget.currentUserId, friend.id);
         setState(() {
           friend.isFollowing = true;
         });

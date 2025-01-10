@@ -57,7 +57,7 @@ class _ChatScreenState extends State<ChatScreen> {
 
   Future<void> _fetchMessages() async {
     try {
-      final fetchedMessages = await CallingAPI.fetchMessages();
+      final fetchedMessages = await CallingAPI.fetchMessages(widget.username,'userNameReceiver');
       setState(() {
         messages.addAll(fetchedMessages);
       });
@@ -159,7 +159,7 @@ class _ChatScreenState extends State<ChatScreen> {
                       setState(() {
                         messages.insert(0, {
                           'id': message.id,
-                          'sender': message.userNameSender,
+                          'userNameSender': message.userNameSender,
                           'text': message.message,
                           'sendingDate': message.sendingDate,
                         });
@@ -185,19 +185,19 @@ class _ChatScreenState extends State<ChatScreen> {
 }
 
 // services/message_service.dart
-class MessageService {
-  static Future<List<Map<String, dynamic>>> fetchMessages() async {
-    final response = await http.get(Uri.parse('http://192.168.67.107:8080/api/messages'));
-    if (response.statusCode == 200) {
-      final List<dynamic> fetchedMessages = json.decode(response.body);
-      return fetchedMessages.map((message) => {
-        'id': message['id'],
-        'sender': message['idSender'],
-        'text': message['message'],
-        'sendingDate': DateTime.parse(message['sendingDate']),
-      }).toList();
-    } else {
-      throw Exception('Failed to fetch messages: ${response.statusCode}');
-    }
-  }
-}
+// class MessageService {
+//   static Future<List<Map<String, dynamic>>> fetchMessages() async {
+//     final response = await http.get(Uri.parse('http://192.168.67.107:8080/api/messages'));
+//     if (response.statusCode == 200) {
+//       final List<dynamic> fetchedMessages = json.decode(response.body);
+//       return fetchedMessages.map((message) => {
+//         'id': message['id'],
+//         'sender': message['idSender'],
+//         'text': message['message'],
+//         'sendingDate': DateTime.parse(message['sendingDate']),
+//       }).toList();
+//     } else {
+//       throw Exception('Failed to fetch messages: ${response.statusCode}');
+//     }
+//   }
+// }
