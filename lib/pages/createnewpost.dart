@@ -1,9 +1,13 @@
+import 'dart:convert';
+
 import 'package:flutter/material.dart';
+import 'package:get_storage/get_storage.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:http/http.dart' as http;
 import 'dart:io';
 import 'package:video_player/video_player.dart';
 
+import '../models/user.dart';
 import 'home_page.dart';
 
 void main() {
@@ -11,8 +15,6 @@ void main() {
 }
 
 class Createnewpost extends StatelessWidget {
-  final String? username;
-  const Createnewpost({super.key, this.username});
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
@@ -44,7 +46,7 @@ class Createnewpost extends StatelessWidget {
         body: Center(
           child: Padding(
             padding: const EdgeInsets.all(16.0),
-            child: CreatePostWidget(username: username),
+            child: CreatePostWidget(),
           ),
         ),
       ),
@@ -53,28 +55,42 @@ class Createnewpost extends StatelessWidget {
 }
 
 class CreatePostWidget extends StatefulWidget {
-    final String? username;
-   const CreatePostWidget({Key? key, required this.username}) : super(key: key); // Constructor với required username
+
+    // Constructor với required username
   @override
   _CreatePostWidgetState createState() => _CreatePostWidgetState();
 }
 
 class _CreatePostWidgetState extends State<CreatePostWidget> {
+  User? currentUser; // Biến để lưu thông tin người dùng
+  String? userName;
+  @override
+  void initState() {
+    super.initState();
+    _loadUser();
+  }
+
+// Hàm để lấy thông tin người dùng từ GetStorage
+  Future<void> _loadUser() async {
+    final box = GetStorage();
+    String? userJsonString = box.read('user');
+    if (userJsonString != null) {
+      // Giải mã JSON thành đối tượng User
+      Map<String, dynamic> userJson = jsonDecode(userJsonString);
+        currentUser = User.fromJson(userJson);
+        userName=currentUser?.username;
+    }
+  }
   File? _selectedFile;
   final ImagePicker _picker = ImagePicker();
-  final String _uploadUrl = 'http://192.168.67.107:8080/api/uploadfile/uploadfile';
+  final String _uploadUrl = 'http://192.168.15.62:8080/api/uploadfile/uploadfile';
   String _fileType = "image";
   final TextEditingController _captionController = TextEditingController();
-  late final TextEditingController _userNameController;
   VideoPlayerController? _videoController;
   double _currentPosition = 0.0;
   double _videoDuration = 1.0;
   bool _isPlaying = false;
-  @override
-  void initState() {
-    super.initState();
-    _userNameController = TextEditingController(text: widget.username); // Khởi tạo trong initState
-  }
+
   // Chọn ảnh hoặc video từ thư viện
   Future<void> _pickFile() async {
     // Hiển thị hộp thoại để chọn ảnh hoặc video
@@ -124,7 +140,7 @@ class _CreatePostWidgetState extends State<CreatePostWidget> {
 
   // Upload file lên server
   Future<void> _uploadFile() async {
-    if (_selectedFile == null || _captionController.text.isEmpty || _userNameController.text.isEmpty) {
+    if (_selectedFile == null || _captionController.text.isEmpty) {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(content: Text("Please select a file and provide caption and username")),
       );
@@ -133,7 +149,7 @@ class _CreatePostWidgetState extends State<CreatePostWidget> {
 
     final request = http.MultipartRequest('POST', Uri.parse(_uploadUrl))
       ..fields['caption'] = _captionController.text
-      ..fields['userName'] = _userNameController.text
+      ..fields['userName'] = userName!
       ..files.add(
         await http.MultipartFile.fromPath(
           'file',
@@ -148,7 +164,6 @@ class _CreatePostWidgetState extends State<CreatePostWidget> {
       setState(() {
         _selectedFile = null;
         _captionController.clear();
-        _userNameController.clear();
       });
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(content: Text("Post uploaded successfully!")),
@@ -239,19 +254,6 @@ class _CreatePostWidgetState extends State<CreatePostWidget> {
               ),
             ),
             SizedBox(height: 8),
-            TextField(
-              enabled: false,
-              controller: _userNameController,
-              decoration: InputDecoration(
-                hintText: "Enter your username",
-                border: OutlineInputBorder(
-                  borderRadius: BorderRadius.circular(8),
-                  borderSide: BorderSide.none,
-                ),
-                fillColor: Colors.grey[200],
-                filled: true,
-              ),
-            ),
             SizedBox(height: 8),
             Row(
               children: [

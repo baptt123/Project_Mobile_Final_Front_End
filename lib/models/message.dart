@@ -18,23 +18,25 @@ class Messages {
     required this.userNameReceiver
   });
 
-  factory Messages.fromJson(Map<String, dynamic> json) {
-    return Messages(
-      id: json['id'],
-      message: json['message'],
-      sendingDate: DateTime.parse(json['sendingDate']),
-      userNameSender: json['userNameSender'],
-      userNameReceiver: json['userNameReceiver']
-    );
-  }
-
   Map<String, dynamic> toJson() {
     return {
       'id': id,
       'message': message,
       'sendingDate': sendingDate.toIso8601String(),
-      'userNameSender':userNameSender,
-      'userNameReceiver':userNameReceiver
+      'userNameSender': userNameSender,
+      'userNameReceiver': userNameReceiver,
     };
+  }
+
+  factory Messages.fromJson(Map<String, dynamic> json) {
+    return Messages(
+      id: json['id'] ?? '',
+      message: json['message'] ?? '',
+      sendingDate: json['sendingDate'] != null
+          ? DateTime.parse(json['sendingDate'])
+          : DateTime.now(),
+      userNameSender: json['userNameSender'] ?? '',
+      userNameReceiver: json['userNameReceiver'] ?? '',
+    );
   }
 }
