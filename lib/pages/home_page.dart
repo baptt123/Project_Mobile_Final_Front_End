@@ -347,7 +347,7 @@ class _HomePageState extends State<HomePage> {
         const NotificationsPage(),
         const ProfileApp(),
         Createnewpost(),
-        const Createstory(),
+        Createstory(),
       ],
     );
   }

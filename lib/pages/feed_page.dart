@@ -249,16 +249,28 @@ class _FeedPageState extends State<FeedPage> {
                   final story = _stories[index];
                   return GestureDetector(
                     onTap: () => _openStoryView(context, index),
-                    child: CircleAvatar(
-                      radius: 40,
-                      backgroundImage: story.imageStory.isNotEmpty
-                          ? NetworkImage(story.imageStory)
-                          : const AssetImage('assets/images/default_story.png')
-                      as ImageProvider,
-                      onBackgroundImageError: (_, __) {
-                        // Xử lý khi tải ảnh thất bại
-                        debugPrint('Failed to load image for story: ${story.idUser}');
-                      },
+                    child: Column(
+                      children: [
+                        CircleAvatar(
+                          radius: 40,
+                          backgroundImage: story.imageStory.isNotEmpty
+                              ? NetworkImage(story.imageStory)
+                              : const AssetImage('assets/img/post.jpg')
+                          as ImageProvider,
+                          onBackgroundImageError: (_, __) {
+                            // Xử lý khi tải ảnh thất bại
+                            debugPrint('Failed to load image for story: ${story.idUser}');
+                          },
+                        ),
+                        const SizedBox(height: 8),
+                        Text(
+                          story.userName ?? 'Vô danh', // Hiển thị "Vô danh" nếu không có username
+                          style: TextStyle(
+                            color: Colors.white,
+                            fontSize: 12,
+                          ),
+                        ),
+                      ],
                     ),
                   );
                 },
@@ -319,12 +331,26 @@ class _FeedPageState extends State<FeedPage> {
             return Container(
               color: Colors.black,
               child: Center(
-                child: Image.network(
-                  story.imageStory,
-                  fit: BoxFit.contain,
-                  errorBuilder: (context, error, stackTrace) {
-                    return Image.asset('assets/images/default_story.png', fit: BoxFit.cover);
-                  },
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    Image.network(
+                      story.imageStory,
+                      fit: BoxFit.contain,
+                      errorBuilder: (context, error, stackTrace) {
+                        return Image.asset('assets/img/post.jpg', fit: BoxFit.cover);
+                      },
+                    ),
+                    const SizedBox(height: 8),
+                    Text(
+                      story.userName ?? 'Vô danh', // Hiển thị "Vô danh" nếu không có username
+                      style: TextStyle(
+                        color: Colors.white,
+                        fontSize: 16,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                  ],
                 ),
               ),
             );
@@ -339,6 +365,7 @@ class _FeedPageState extends State<FeedPage> {
     );
   }
 }
+
 
 
 
