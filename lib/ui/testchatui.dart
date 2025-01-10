@@ -3,6 +3,7 @@ import 'dart:convert';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:get_storage/get_storage.dart';
+import 'package:quick_social/config/AppConfig.dart';
 import 'package:web_socket_channel/io.dart';
 import 'package:web_socket_channel/web_socket_channel.dart';
 
@@ -63,7 +64,7 @@ class _ChatScreenState extends State<ChatScreen> {
 
   void _connectWebSocket() {
     _channel = IOWebSocketChannel.connect(
-        'ws://192.168.15.62:8080/chat?username='+userName!);
+        '${AppConfig.webSocketChatURL}'+userName!);
 
     _channel.stream.listen(
       (data) {

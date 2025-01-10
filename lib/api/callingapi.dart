@@ -19,7 +19,7 @@ class CallingAPI {
       'http://192.168.15.62:8080/api/messages/getmessages';
 
   static Future<List<PostDTO>> fetchPosts() async {
-    final response = await http.get(Uri.parse(postURL));
+    final response = await http.get(Uri.parse('${AppConfig.baseUrl}'+'${AppConfig.postURL}'));
 
     if (response.statusCode == 200) {
       final List<dynamic> data = json.decode(response.body);
@@ -31,7 +31,7 @@ class CallingAPI {
 
   // Phương thức GET: Lấy danh sách StoryDTO
   static Future<List<Story>> fetchStories() async {
-    final response = await http.get(Uri.parse(storyURL));
+    final response = await http.get(Uri.parse('${AppConfig.baseUrl}'+'${AppConfig.postURL}'));
 
     if (response.statusCode == 200) {
       final List<dynamic> data = json.decode(response.body);
@@ -42,7 +42,7 @@ class CallingAPI {
   }
 
   static Future<List<NotificationsDTO>> fetchNotifications() async {
-    final response = await http.get(Uri.parse(notificationURL));
+    final response = await http.get(Uri.parse('${AppConfig.baseUrl}'+'${AppConfig.notificationURL}'));
     if (response.statusCode == 200) {
       final List<dynamic> data = json.decode(response.body);
       return data.map((json) => NotificationsDTO.fromJson(json)).toList();
@@ -55,7 +55,7 @@ class CallingAPI {
       String userNameSender, String userNameReceiver) async {
     try {
       final response = await http.get(
-        Uri.parse('http://192.168.15.62:8080/api/messages/getmessages'+'/'+userNameSender+'/'+userNameReceiver)
+        Uri.parse('${AppConfig.baseUrl}'+AppConfig.messageURL+'/'+userNameSender+'/'+userNameReceiver)
         ,
       );
 

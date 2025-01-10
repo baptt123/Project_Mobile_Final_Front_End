@@ -8,6 +8,7 @@ import 'package:image_picker/image_picker.dart';
 import 'package:http/http.dart' as http;
 import 'package:http_parser/http_parser.dart';
 
+import '../config/AppConfig.dart';
 import '../models/user.dart';
 import 'home_page.dart';
 
@@ -197,7 +198,7 @@ class CreateNewStoryState extends State<CreateNewStory> {
     }
 
     var uri =
-    Uri.parse('http://192.168.15.62:8080/api/uploadfile/uploadfilestory');
+    Uri.parse('${AppConfig.baseUrl}'+'${AppConfig.uploadStoryURL}');
     final request = http.MultipartRequest('POST', uri)
       ..fields['userName'] = userName!
       ..files.add(

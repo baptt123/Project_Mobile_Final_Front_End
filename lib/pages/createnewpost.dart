@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:get_storage/get_storage.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:http/http.dart' as http;
+import 'package:quick_social/config/AppConfig.dart';
 import 'dart:io';
 import 'package:video_player/video_player.dart';
 
@@ -83,7 +84,7 @@ class _CreatePostWidgetState extends State<CreatePostWidget> {
   }
   File? _selectedFile;
   final ImagePicker _picker = ImagePicker();
-  final String _uploadUrl = 'http://192.168.15.62:8080/api/uploadfile/uploadfile';
+  final String _uploadUrl = '${AppConfig.baseUrl}'+'${AppConfig.uploadPostURL}';
   String _fileType = "image";
   final TextEditingController _captionController = TextEditingController();
   VideoPlayerController? _videoController;
