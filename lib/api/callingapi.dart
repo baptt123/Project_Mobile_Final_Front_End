@@ -10,13 +10,13 @@ import '../models/story.dart';
 
 class CallingAPI {
   static const String postURL =
-      'http://192.168.67.107:8080/api/post/getpost'; // URL API
+      'http://192.168.15.62:8080/api/post/getpost'; // URL API
   static const String storyURL =
-      'http://192.168.67.107:8080/api/story/getstories';
+      'http://192.168.15.62:8080/api/story/getstories';
   static const String notificationURL =
-      'http://192.168.67.107:8080/api/notification/get-notification';
-  static const String messagesURL =
-      'http://192.168.67.107:8080/api/messages/getmessages';
+      'http://192.168.15.62:8080/api/notification/get-notification';
+  static String messagesURL =
+      'http://192.168.15.62:8080/api/messages/getmessages';
 
   static Future<List<PostDTO>> fetchPosts() async {
     final response = await http.get(Uri.parse(postURL));
@@ -51,26 +51,48 @@ class CallingAPI {
     }
   }
 
-  static Future<List<Map<String, dynamic>>> fetchMessages() async {
-    final response = await http.get(Uri.parse(messagesURL));
-    if (response.statusCode == 200) {
-      final List<dynamic> fetchedMessages = json.decode(response.body);
-      return fetchedMessages
-          .map((message) => {
-                'id': message['id'],
-                'sender': message['idSender'],
-                'text': message['message'],
-                'sendingDate': DateTime.parse(message['sendingDate']),
-              })
-          .toList();
-    } else {
-      throw Exception('Failed to fetch messages: ${response.statusCode}');
+  static Future<List<Map<String, dynamic>>> fetchMessages(
+      String userNameSender, String userNameReceiver) async {
+    try {
+      final response = await http.get(
+        Uri.parse('http://192.168.15.62:8080/api/messages/getmessages'+'/'+userNameSender+'/'+userNameReceiver)
+        ,
+      );
+
+      if (response.statusCode == 200) {
+        if (response.body.isEmpty) {
+          return [];
+        }
+
+        List<dynamic> jsonData = json.decode(response.body);
+
+        if (jsonData.isEmpty) {
+          return [];
+        }
+
+        return jsonData.map((message) => {
+          'id': message['id'] ?? '',
+          'userNameSender': message['userNameSender'] ?? '',
+          'text': message['message'] ?? '',
+          'sendingDate': message['sendingDate'] != null
+              ? DateTime.parse(message['sendingDate'])
+              : DateTime.now(),
+        }).toList();
+      } else if (response.statusCode == 204) {
+        return [];
+      } else {
+        print('Error: Status code ${response.statusCode}');
+        return [];
+      }
+    } catch (e) {
+      print('Error fetching messages: $e');
+      return [];
     }
   }
 
   static Future<List<UserDTO>> fetchUsersAdmin() async {
     final response =
-        await http.get(Uri.parse(AppConfig.baseUrl + AppConfig.userURL));
+    await http.get(Uri.parse(AppConfig.baseUrl + AppConfig.userURL));
 
     if (response.statusCode == 200) {
       final List<dynamic> data = json.decode(response.body);
@@ -81,7 +103,8 @@ class CallingAPI {
   }
 
   static Future<List<PostDTO>> fetchPostsAdmin() async {
-    final response = await http.get(Uri.parse(AppConfig.baseUrl+AppConfig.postURL));
+    final response =
+    await http.get(Uri.parse(AppConfig.baseUrl + AppConfig.postURL));
     if (response.statusCode == 200) {
       final List<dynamic> data = json.decode(response.body);
       return data.map((post) => PostDTO.fromJson(post)).toList();
