@@ -165,7 +165,6 @@
 //
 import 'package:flutter/material.dart';
 import 'package:quick_social/api/callingapi.dart';
-import 'package:quick_social/dto/storydto.dart';
 import 'package:story/story_page_view.dart'; // Thư viện story
 import '../dto/postdto.dart';
 import '../models/story.dart';
@@ -255,17 +254,12 @@ class _FeedPageState extends State<FeedPage> {
                           radius: 40,
                           backgroundImage: story.imageStory.isNotEmpty
                               ? NetworkImage(story.imageStory)
-                              : const AssetImage('assets/img/post.jpg')
-                          as ImageProvider,
-                          onBackgroundImageError: (_, __) {
-                            // Xử lý khi tải ảnh thất bại
-                            debugPrint('Failed to load image for story: ${story.idUser}');
-                          },
+                              : const AssetImage('assets/img/post.jpg') as ImageProvider,
                         ),
                         const SizedBox(height: 8),
                         Text(
-                          story.userName ?? 'Vô danh', // Hiển thị "Vô danh" nếu không có username
-                          style: TextStyle(
+                          story.fullName ?? 'Vô danh',
+                          style: const TextStyle(
                             color: Colors.white,
                             fontSize: 12,
                           ),
@@ -328,31 +322,45 @@ class _FeedPageState extends State<FeedPage> {
         builder: (context) => StoryPageView(
           itemBuilder: (context, pageIndex, storyIndex) {
             final story = _stories[pageIndex];
-            return Container(
-              color: Colors.black,
-              child: Center(
-                child: Column(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    Image.network(
+            return Stack(
+              children: [
+                Container(
+                  color: Colors.black,
+                  child: Center(
+                    child: Image.network(
                       story.imageStory,
                       fit: BoxFit.contain,
                       errorBuilder: (context, error, stackTrace) {
                         return Image.asset('assets/img/post.jpg', fit: BoxFit.cover);
                       },
                     ),
-                    const SizedBox(height: 8),
-                    Text(
-                      story.userName ?? 'Vô danh', // Hiển thị "Vô danh" nếu không có username
-                      style: TextStyle(
-                        color: Colors.white,
-                        fontSize: 16,
-                        fontWeight: FontWeight.bold,
-                      ),
-                    ),
-                  ],
+                  ),
                 ),
-              ),
+                // Hiển thị username ở góc trái trên
+                Positioned(
+                  top: 16,
+                  left: 16,
+                  child: Row(
+                    children: [
+                      CircleAvatar(
+                        radius: 20,
+                        backgroundImage: story.imageStory.isNotEmpty
+                            ? NetworkImage(story.imageStory)
+                            : const AssetImage('assets/img/post.jpg') as ImageProvider,
+                      ),
+                      const SizedBox(width: 8),
+                      Text(
+                        story.fullName ?? 'Vô danh',
+                        style: const TextStyle(
+                          color: Colors.white,
+                          fontSize: 16,
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ],
             );
           },
           storyLength: (pageIndex) => 1, // Mỗi người dùng có 1 story
@@ -365,6 +373,7 @@ class _FeedPageState extends State<FeedPage> {
     );
   }
 }
+
 
 
 

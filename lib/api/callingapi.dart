@@ -52,10 +52,10 @@ class CallingAPI {
   }
 
   static Future<List<Map<String, dynamic>>> fetchMessages(
-      String userNameSender, String userNameReceiver) async {
+      String fullNameSender, String fullNameReceiver) async {
     try {
       final response = await http.get(
-        Uri.parse('${AppConfig.baseUrl}'+AppConfig.messageURL+'/'+userNameSender+'/'+userNameReceiver)
+        Uri.parse('${AppConfig.baseUrl}'+AppConfig.messageURL+'/'+fullNameSender+'/'+fullNameReceiver)
         ,
       );
 
@@ -72,7 +72,7 @@ class CallingAPI {
 
         return jsonData.map((message) => {
           'id': message['id'] ?? '',
-          'userNameSender': message['userNameSender'] ?? '',
+          'fullNameSender': message['fullNameSender'] ?? '',
           'text': message['message'] ?? '',
           'sendingDate': message['sendingDate'] != null
               ? DateTime.parse(message['sendingDate'])

@@ -62,7 +62,7 @@ class CreateNewStory extends StatefulWidget {
 class CreateNewStoryState extends State<CreateNewStory> {
   File? _image; // Lưu trữ file ảnh đã chọn
   User? currentUser; // Biến để lưu thông tin người dùng
-  String? userName;
+  String? fullName;
 
   @override
   void initState() {
@@ -78,7 +78,7 @@ class CreateNewStoryState extends State<CreateNewStory> {
       // Giải mã JSON thành đối tượng User
       Map<String, dynamic> userJson = jsonDecode(userJsonString);
       currentUser = User.fromJson(userJson);
-      userName = currentUser?.username;
+      fullName = currentUser?.fullName;
     }
   }
 
@@ -190,7 +190,7 @@ class CreateNewStoryState extends State<CreateNewStory> {
   }
 
   Future<void> _uploadFile(File file) async {
-    if (userName == null) {
+    if (fullName == null) {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(content: Text('Không tìm thấy thông tin người dùng.')),
       );
@@ -200,7 +200,7 @@ class CreateNewStoryState extends State<CreateNewStory> {
     var uri =
     Uri.parse('${AppConfig.baseUrl}'+'${AppConfig.uploadStoryURL}');
     final request = http.MultipartRequest('POST', uri)
-      ..fields['userName'] = userName!
+      ..fields['fullName'] = fullName!
       ..files.add(
         await http.MultipartFile.fromPath(
           'file',

@@ -2,16 +2,16 @@ class Story {
   String _id;
   int _idUser;
   String _imageStory;
-  String _userName;
+  String _fullName;
 
   String get id => _id;
 
-  Story(this._id, this._idUser, this._imageStory, this._userName);
+  Story(this._id, this._idUser, this._imageStory, this._fullName);
 
-  String get userName => _userName;
+  String get fullName => _fullName;
 
-  set userName(String value) {
-    _userName = value;
+  set fullName(String value) {
+    _fullName = value;
   }
 
   set id(String value) {
@@ -37,14 +37,14 @@ class Story {
       'idUser': _idUser,
       'imageStory': _imageStory,
       // 'caption': _caption,
-      'userName': _userName
+      'fullName': _fullName
     };
   }
 
 // Chuyển đổi JSON sang Object
   static Story fromJson(Map<String, dynamic> json) {
     return Story(json['id'], json['idUser'], json['imageStory'],
-        json['userName'] ?? 'Vô danh'
+        json['fullName'] ?? 'Vô danh'
         // json['caption'],
         );
   }

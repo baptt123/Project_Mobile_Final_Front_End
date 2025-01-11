@@ -18,7 +18,7 @@ class ChatScreen extends StatefulWidget {
 
 class _ChatScreenState extends State<ChatScreen> {
   User? currentUser; // Biến để lưu thông tin người dùng
-  String? userName;
+  String? fullName;
 
   @override
   void initState() {
@@ -39,7 +39,7 @@ class _ChatScreenState extends State<ChatScreen> {
       //   username = currentUser?.username;
       // });
       currentUser=User.fromJson(userJson);
-      userName=currentUser?.username;
+      fullName=currentUser?.fullName;
     }
   }
 
@@ -64,7 +64,7 @@ class _ChatScreenState extends State<ChatScreen> {
 
   void _connectWebSocket() {
     _channel = IOWebSocketChannel.connect(
-        '${AppConfig.webSocketChatURL}'+userName!);
+        '${AppConfig.webSocketChatURL}'+fullName!);
 
     _channel.stream.listen(
       (data) {
@@ -102,7 +102,7 @@ class _ChatScreenState extends State<ChatScreen> {
   Future<void> _fetchMessages() async {
     try {
       final fetchedMessages =
-          await CallingAPI.fetchMessages(userName!, 'userNameReceiver');
+          await CallingAPI.fetchMessages(fullName!, 'userNameReceiver');
 
       setState(() {
         messages.clear(); // Làm mới lại danh sách tin nhắn
@@ -126,15 +126,15 @@ class _ChatScreenState extends State<ChatScreen> {
           id: DateTime.now().millisecondsSinceEpoch.toString(),
           message: _controller.text,
           sendingDate: DateTime.now(),
-          userNameSender: userName??'',
-          userNameReceiver: 'userNameReceiver',
+          fullNameSender: fullName??'',
+          fullNameReceiver: 'userNameReceiver',
         );
 
         _channel.sink.add(json.encode(message.toJson()));
         setState(() {
           messages.add({
             'id': message.id,
-            'userNameSender': message.userNameSender,
+            'fullNameSender': message.fullNameSender,
             'text': message.message,
             'sendingDate': message.sendingDate,
           });
