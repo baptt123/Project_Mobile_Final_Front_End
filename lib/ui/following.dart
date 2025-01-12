@@ -19,22 +19,22 @@ class _FriendsFollowingScreenState extends State<FriendsFollowingScreen> {
   @override
   void initState() {
     super.initState();
-    followingFuture = CallingAPI().fetchFollowing(widget.userId);
-    friendsFuture = CallingAPI().fetchFriends(widget.userId);
+    followingFuture = CallingAPIFriends().fetchFollowing(widget.userId);
+    friendsFuture = CallingAPIFriends().fetchFriends(widget.userId);
   }
 
   Future<void> toggleFriendStatus(Friend friend) async {
     try {
       if (friend.isFriend) {
         // Unfriend: Xóa khỏi danh sách bạn bè và chuyển thành người theo dõi
-        await CallingAPI().unfollowUser(widget.userId, friend.id); // Hủy bạn bè
+        await CallingAPIFriends().unfollowUser(widget.userId, friend.id); // Hủy bạn bè
         setState(() {
           friend.isFriend = false;
           friend.isFollowing = true; // Chuyển sang trạng thái người theo dõi
         });
       } else {
         // Follow lại: Chuyển từ trạng thái "theo dõi" thành "bạn bè"
-        await CallingAPI().followUser(widget.userId, friend.id); // Thêm vào danh sách bạn bè
+        await CallingAPIFriends().followUser(widget.userId, friend.id); // Thêm vào danh sách bạn bè
         setState(() {
           friend.isFriend = true;  // Trở thành bạn bè
           friend.isFollowing = false; // Xóa khỏi danh sách người theo dõi
@@ -52,13 +52,13 @@ class _FriendsFollowingScreenState extends State<FriendsFollowingScreen> {
     try {
       if (friend.isFollowing) {
         // Unfollow: Xóa khỏi danh sách theo dõi
-        await CallingAPI().unfollowUser(widget.userId, friend.id); // Hủy theo dõi
+        await CallingAPIFriends().unfollowUser(widget.userId, friend.id); // Hủy theo dõi
         setState(() {
           friend.isFollowing = false;  // Đánh dấu là không còn theo dõi
         });
       } else {
         // Follow lại: Thêm vào danh sách theo dõi
-        await CallingAPI().followUser(widget.userId, friend.id); // Thêm vào danh sách theo dõi
+        await CallingAPIFriends().followUser(widget.userId, friend.id); // Thêm vào danh sách theo dõi
         setState(() {
           friend.isFollowing = true;  // Trở thành người theo dõi
         });

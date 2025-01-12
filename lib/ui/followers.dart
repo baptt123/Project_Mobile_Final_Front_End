@@ -17,20 +17,20 @@ class _FollowersPageState extends State<FollowersPageList> {
   @override
   void initState() {
     super.initState();
-    followersList = CallingAPI().fetchFollowers(widget.currentUserId);
+    followersList = CallingAPIFriends().fetchFollowers(widget.currentUserId);
   }
 
   Future<void> toggleFollowStatus(Friend friend) async {
     try {
       if (friend.isFollowers) {
         // Unfollow logic
-        await CallingAPI().unfollowUser(widget.currentUserId, friend.id);
+        await CallingAPIFriends().unfollowUser(widget.currentUserId, friend.id);
         setState(() {
           friend.isFollowers = false;
         });
       } else {
         // Follow logic
-        await CallingAPI().followUser(widget.currentUserId, friend.id);
+        await CallingAPIFriends().followUser(widget.currentUserId, friend.id);
         setState(() {
           friend.isFollowers = true;
         });
