@@ -20,27 +20,23 @@ class _FollowPageState extends State<FollowPageList> {
     super.initState();
     suggestedFriends =  CallingAPIFriends().fetchSuggestedFriends(widget.currentUserId);
   }
-  // Future<void> fetchAndSetSuggestedFriends(String userId) async {
-  //   final suggestedFriends = await CallingAPI().fetchSuggestedFriends(userId);
-  //   setState(() {
-  //     suggestedFriends = suggestedFriends; // Cập nhật _suggestedFriends nếu có biến này
-  //   });
-  // }
+
   Future<void> toggleFollow(Friend friend) async {
     try {
-      if (friend.isFollowing) {
+      if (friend.isFollowers) {
         // Call API to unfollow
         await CallingAPIFriends().unfollowUser(widget.currentUserId, friend.id);
         setState(() {
-          friend.isFollowing = false;
+          friend.isFollowers = false;
         });
       } else {
         // Call API to follow
         await CallingAPIFriends().followUser(widget.currentUserId, friend.id);
         setState(() {
-          friend.isFollowing = true;
+          friend.isFollowers = true;
         });
       }
+
     } catch (e) {
       print("Error in toggleFollow: $e");
       // Handle error (e.g., show a Snackbar)
@@ -84,14 +80,14 @@ class _FollowPageState extends State<FollowPageList> {
                     style: TextStyle(fontWeight: FontWeight.bold),),
                   trailing: ElevatedButton(
                     style: ElevatedButton.styleFrom(
-                      backgroundColor: friend.isFollowing ? Colors.grey : Colors.blue,
+                      backgroundColor: friend.isFollowers ? Colors.grey : Colors.blue,
                       padding: EdgeInsets.symmetric(horizontal: 8, vertical: 4),
                       minimumSize: Size(50, 30),
                     ),
                     // onPressed: () => toggleFollow(friend),
                     onPressed: () => toggleFollow(friend),
                     // icon: Icon(Icons.person_add),
-                    child: Text(friend.isFollowing ? 'Unfollow' : 'Follow'),
+                    child: Text(friend.isFollowers ? 'Unfollow' : 'Follow'),
                   ),
                   // trailing: ElevatedButton(
                   //   onPressed: () {
@@ -113,9 +109,19 @@ class _FollowPageState extends State<FollowPageList> {
 void main() {
   runApp(MaterialApp(
     home: FollowPageList(currentUserId: '6769113169cc2f1876d7a93e'),
-    //   home: FollowPageList(currentUserId: '6752fa3671214d6a44ed7c59'),
+    //   home: FollowPageList(currentUserId: '67809556eb980ca3d80c88b6'),
 
   ));
 }
 
 
+// // Sau khi thay đổi trạng thái, gọi lại API để làm mới dữ liệu
+// setState(() {
+//   suggestedFriends = CallingAPI().fetchSuggestedFriends(widget.currentUserId);
+// });
+// Future<void> fetchAndSetSuggestedFriends(String userId) async {
+//   final suggestedFriends = await CallingAPI().fetchSuggestedFriends(userId);
+//   setState(() {
+//     suggestedFriends = suggestedFriends; // Cập nhật _suggestedFriends nếu có biến này
+//   });
+// }
