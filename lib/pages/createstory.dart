@@ -1,11 +1,15 @@
+import 'dart:convert';
 import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
+import 'package:get_storage/get_storage.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:http/http.dart' as http;
 import 'package:http_parser/http_parser.dart';
 
+import '../config/AppConfig.dart';
+import '../models/user.dart';
 import 'home_page.dart';
 
 void main() {
@@ -13,8 +17,6 @@ void main() {
 }
 
 class Createstory extends StatelessWidget {
-   final String? username;
-   const Createstory({super.key, this.username});
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
@@ -59,6 +61,26 @@ class CreateNewStory extends StatefulWidget {
 
 class CreateNewStoryState extends State<CreateNewStory> {
   File? _image; // Lưu trữ file ảnh đã chọn
+  User? currentUser; // Biến để lưu thông tin người dùng
+  String? fullName;
+
+  @override
+  void initState() {
+    super.initState();
+    _loadUser();
+  }
+
+  // Hàm để lấy thông tin người dùng từ GetStorage
+  Future<void> _loadUser() async {
+    final box = GetStorage();
+    String? userJsonString = box.read('user');
+    if (userJsonString != null) {
+      // Giải mã JSON thành đối tượng User
+      Map<String, dynamic> userJson = jsonDecode(userJsonString);
+      currentUser = User.fromJson(userJson);
+      fullName = currentUser?.fullName;
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -69,7 +91,8 @@ class CreateNewStoryState extends State<CreateNewStory> {
           Column(
             children: [
               Padding(
-                padding: const EdgeInsets.symmetric(vertical: 8.0, horizontal: 16.0),
+                padding:
+                const EdgeInsets.symmetric(vertical: 8.0, horizontal: 16.0),
                 child: Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
@@ -114,7 +137,8 @@ class CreateNewStoryState extends State<CreateNewStory> {
                           await _uploadFile(_image!);
                         } else {
                           ScaffoldMessenger.of(context).showSnackBar(
-                            SnackBar(content: Text('Vui lòng chọn ảnh để chia sẻ')),
+                            SnackBar(
+                                content: Text('Vui lòng chọn ảnh để chia sẻ')),
                           );
                         }
                       },
@@ -155,7 +179,8 @@ class CreateNewStoryState extends State<CreateNewStory> {
 
   Future<void> _pickImage() async {
     final ImagePicker picker = ImagePicker();
-    final XFile? pickedFile = await picker.pickImage(source: ImageSource.gallery);
+    final XFile? pickedFile =
+    await picker.pickImage(source: ImageSource.gallery);
 
     if (pickedFile != null) {
       setState(() {
@@ -165,13 +190,24 @@ class CreateNewStoryState extends State<CreateNewStory> {
   }
 
   Future<void> _uploadFile(File file) async {
-    var uri = Uri.parse('http://192.168.67.107:8080/api/uploadfile/uploadfilestory');
-    var request = http.MultipartRequest('POST', uri);
+    if (fullName == null) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Không tìm thấy thông tin người dùng.')),
+      );
+      return;
+    }
 
-    request.files.add(await http.MultipartFile.fromPath(
-      'file',
-      file.path
-    ));
+    var uri =
+    Uri.parse('${AppConfig.baseUrl}'+'${AppConfig.uploadStoryURL}');
+    final request = http.MultipartRequest('POST', uri)
+      ..fields['fullName'] = fullName!
+      ..files.add(
+        await http.MultipartFile.fromPath(
+          'file',
+          file.path,
+          contentType: MediaType('image', 'jpeg'),
+        ),
+      );
 
     var response = await request.send();
     if (response.statusCode == 200) {

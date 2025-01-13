@@ -7,15 +7,15 @@ class Messages {
   final String id;
   final String message;
   final DateTime sendingDate;
-  final String userNameSender;
-  final String userNameReceiver;
+  final String fullNameSender;
+  final String fullNameReceiver;
 
   Messages({
     required this.id,
     required this.message,
     required this.sendingDate,
-    required this.userNameSender,
-    required this.userNameReceiver
+    required this.fullNameSender,
+    required this.fullNameReceiver
   });
 
   Map<String, dynamic> toJson() {
@@ -23,8 +23,8 @@ class Messages {
       'id': id,
       'message': message,
       'sendingDate': sendingDate.toIso8601String(),
-      'userNameSender': userNameSender,
-      'userNameReceiver': userNameReceiver,
+      'fullNameSender': fullNameSender,
+      'fullNameReceiver': fullNameReceiver,
     };
   }
 
@@ -35,8 +35,8 @@ class Messages {
       sendingDate: json['sendingDate'] != null
           ? DateTime.parse(json['sendingDate'])
           : DateTime.now(),
-      userNameSender: json['userNameSender'] ?? '',
-      userNameReceiver: json['userNameReceiver'] ?? '',
+      fullNameSender: json['fullNameSender'] ?? '',
+      fullNameReceiver: json['fullNameReceiver'] ?? '',
     );
   }
 }
