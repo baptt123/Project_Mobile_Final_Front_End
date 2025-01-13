@@ -28,7 +28,7 @@ class _FriendsFollowingScreenState extends State<FriendsFollowingScreen> {
     try {
       if (friend.isFriend) {
         // Unfriend: Xóa khỏi danh sách bạn bè và chuyển thành người theo dõi
-        await CallingAPIFriends().unfollowUser(widget.userId, friend.id); // Hủy bạn bè
+        await CallingAPI().unfollowUser(widget.userId, friend.id); // Hủy bạn bè
         setState(() {
           friend.isFriend = false;
           friend.isFollowing = true; // Chuyển sang trạng thái người theo dõi
