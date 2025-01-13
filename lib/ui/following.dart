@@ -1,6 +1,7 @@
 
 import 'package:flutter/material.dart';
 import 'package:quick_social/calling_api/callingapi.dart';
+import '../api/callingapi.dart';
 import '../model/friend.dart';
 
 class FriendsFollowingScreen extends StatefulWidget {
@@ -19,8 +20,8 @@ class _FriendsFollowingScreenState extends State<FriendsFollowingScreen> {
   @override
   void initState() {
     super.initState();
-    followingFuture = CallingAPIFriends().fetchFollowing(widget.userId);
-    friendsFuture = CallingAPIFriends().fetchFriends(widget.userId);
+    followingFuture = CallingAPI().fetchFollowing(widget.userId);
+    friendsFuture = CallingAPI().fetchFriends(widget.userId);
   }
 
   Future<void> toggleFriendStatus(Friend friend) async {
@@ -34,7 +35,7 @@ class _FriendsFollowingScreenState extends State<FriendsFollowingScreen> {
         });
       } else {
         // Follow lại: Chuyển từ trạng thái "theo dõi" thành "bạn bè"
-        await CallingAPIFriends().followUser(widget.userId, friend.id); // Thêm vào danh sách bạn bè
+        await CallingAPI().followUser(widget.userId, friend.id); // Thêm vào danh sách bạn bè
         setState(() {
           friend.isFriend = true;  // Trở thành bạn bè
           friend.isFollowing = false; // Xóa khỏi danh sách người theo dõi
@@ -52,13 +53,13 @@ class _FriendsFollowingScreenState extends State<FriendsFollowingScreen> {
     try {
       if (friend.isFollowing) {
         // Unfollow: Xóa khỏi danh sách theo dõi
-        await CallingAPIFriends().unfollowUser(widget.userId, friend.id); // Hủy theo dõi
+        await CallingAPI().unfollowUser(widget.userId, friend.id); // Hủy theo dõi
         setState(() {
           friend.isFollowing = false;  // Đánh dấu là không còn theo dõi
         });
       } else {
         // Follow lại: Thêm vào danh sách theo dõi
-        await CallingAPIFriends().followUser(widget.userId, friend.id); // Thêm vào danh sách theo dõi
+        await CallingAPI().followUser(widget.userId, friend.id); // Thêm vào danh sách theo dõi
         setState(() {
           friend.isFollowing = true;  // Trở thành người theo dõi
         });

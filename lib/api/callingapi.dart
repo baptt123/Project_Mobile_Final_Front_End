@@ -6,6 +6,7 @@ import '../dto/notificationsdto.dart';
 import '../dto/postdto.dart';
 import '../dto/storydto.dart';
 import '../dto/userdto.dart';
+import '../model/friend.dart';
 import '../models/story.dart';
 
 class CallingAPI {
@@ -31,7 +32,7 @@ class CallingAPI {
 
   // Phương thức GET: Lấy danh sách StoryDTO
   static Future<List<Story>> fetchStories() async {
-    final response = await http.get(Uri.parse('${AppConfig.baseUrl}'+'${AppConfig.postURL}'));
+    final response = await http.get(Uri.parse('${AppConfig.baseUrl}'+'${AppConfig.storyURL}'));
 
     if (response.statusCode == 200) {
       final List<dynamic> data = json.decode(response.body);
@@ -110,6 +111,100 @@ class CallingAPI {
       return data.map((post) => PostDTO.fromJson(post)).toList();
     } else {
       throw Exception('Failed to fetch user at admin:${response.statusCode}');
+    }
+  }
+  //Phan hien thi goi ý ket ban be
+  Future<List<Friend>> fetchSuggestedFriends(String userId) async {
+    //192.168.1.183
+    // final url = Uri.parse('http://192.168.88.234:8080/api/user/suggested-friends/$userId');
+    final url = Uri.parse('${AppConfig.friendbaseUrl}/api/user/suggested-friends/$userId');
+
+    try {
+      final response = await http.get(url);
+
+      if (response.statusCode == 200) {
+        // Chuyển đổi dữ liệu JSON từ API thành danh sách các đối tượng Friend
+        final List<dynamic> data = json.decode(response.body);
+        return data.map((json) => Friend.fromJSON(json)).toList();
+      } else {
+        throw Exception("Failed to load suggested friends: ${response.statusCode}");
+      }
+    } catch (e) {
+      throw Exception("Error fetching suggested friends: $e");
+    }
+  }
+
+// Call API follow và unfollow
+//  final String baseUrl = "http://192.168.1.183:8080/api/user";
+  // Follow user
+  Future<void> followUser(String currentUserId, String targetUserId) async {
+    final url = Uri.parse('${AppConfig.friendbaseUrl}/api/user/${currentUserId}/follow/${targetUserId}');
+    final response = await http.post(url);
+    if (response.statusCode != 200) {
+      throw Exception('Failed to follow user');
+    }
+  }
+
+  // Unfollow user
+  Future<void> unfollowUser(String currentUserId, String targetUserId) async {
+    final url = Uri.parse('${AppConfig.friendbaseUrl}/api/user/${currentUserId}/unfollow/${targetUserId}');
+    final response = await http.delete(url);
+    if (response.statusCode != 200) {
+      throw Exception('Failed to unfollow user');
+    }
+  }
+  Future<List<Friend>> fetchFollowers(String userId) async {
+    final url = Uri.parse('${AppConfig.friendbaseUrl}/api/user/$userId/followers');
+
+    try {
+      final response = await http.get(url);
+
+      if (response.statusCode == 200) {
+        // Chuyển đổi dữ liệu JSON từ API thành danh sách các đối tượng Friend
+        final List<dynamic> data = json.decode(response.body);
+        return data.map((json) => Friend.fromJSON(json)).toList();
+      } else {
+        throw Exception("Failed to load followers: ${response.statusCode}");
+      }
+    } catch (e) {
+      throw Exception("Error fetching followers: $e");
+    }
+  }
+  // Fetch danh sách bạn bè
+  Future<List<Friend>> fetchFriends(String userId) async {
+    final url = Uri.parse('${AppConfig.friendbaseUrl}/api/user/$userId/friends');
+
+    try {
+      final response = await http.get(url);
+
+      if (response.statusCode == 200) {
+        // Chuyển đổi dữ liệu JSON từ API thành danh sách các đối tượng Friend
+        final List<dynamic> data = json.decode(response.body);
+        return data.map((json) => Friend.fromJSON(json)).toList();
+      } else {
+        throw Exception("Failed to load friends: ${response.statusCode}");
+      }
+    } catch (e) {
+      throw Exception("Error fetching friends: $e");
+    }
+  }
+
+// Fetch danh sách người đang theo dõi
+  Future<List<Friend>> fetchFollowing(String userId) async {
+    final url = Uri.parse('${AppConfig.friendbaseUrl}/api/user/$userId/following');
+
+    try {
+      final response = await http.get(url);
+
+      if (response.statusCode == 200) {
+        // Chuyển đổi dữ liệu JSON từ API thành danh sách các đối tượng Friend
+        final List<dynamic> data = json.decode(response.body);
+        return data.map((json) => Friend.fromJSON(json)).toList();
+      } else {
+        throw Exception("Failed to load following: ${response.statusCode}");
+      }
+    } catch (e) {
+      throw Exception("Error fetching following: $e");
     }
   }
 }

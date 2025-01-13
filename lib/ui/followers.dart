@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:quick_social/calling_api/callingapi.dart';
+import '../api/callingapi.dart';
 import '../model/friend.dart';
 
 class FollowersPageList extends StatefulWidget {
@@ -17,20 +18,20 @@ class _FollowersPageState extends State<FollowersPageList> {
   @override
   void initState() {
     super.initState();
-    followersList = CallingAPIFriends().fetchFollowers(widget.currentUserId);
+    followersList = CallingAPI().fetchFollowers(widget.currentUserId);
   }
 
   Future<void> toggleFollowStatus(Friend friend) async {
     try {
       if (friend.isFollowers) {
         // Unfollow logic
-        await CallingAPIFriends().unfollowUser(widget.currentUserId, friend.id);
+        await CallingAPI().unfollowUser(widget.currentUserId, friend.id);
         setState(() {
           friend.isFollowers = false;
         });
       } else {
         // Follow logic
-        await CallingAPIFriends().followUser(widget.currentUserId, friend.id);
+        await CallingAPI().followUser(widget.currentUserId, friend.id);
         setState(() {
           friend.isFollowers = true;
         });

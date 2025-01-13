@@ -64,7 +64,7 @@ class _ChatScreenState extends State<ChatScreen> {
 
   void _connectWebSocket() {
     _channel = IOWebSocketChannel.connect(
-        '${AppConfig.webSocketChatURL}'+fullName!);
+        'ws://192.168.1.90:8080/chat?username=${fullName}');
 
     _channel.stream.listen(
       (data) {
@@ -72,7 +72,7 @@ class _ChatScreenState extends State<ChatScreen> {
         setState(() {
           messages.add({
             'id': decodedMessage['id'],
-            'userNameSender': decodedMessage['userNameSender'],
+            'fullNameSender': decodedMessage['fullNameSender'],
             'text': decodedMessage['message'],
             'sendingDate': DateTime.parse(decodedMessage['sendingDate']),
           });
@@ -200,7 +200,7 @@ class _ChatScreenState extends State<ChatScreen> {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Text(
-                "User: ${message['userNameSender']}",
+                "User: ${message['fullNameSender']}",
                 style: TextStyle(
                   fontWeight: FontWeight.bold,
                   color: Colors.white70,

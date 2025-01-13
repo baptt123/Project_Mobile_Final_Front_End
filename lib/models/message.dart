@@ -35,8 +35,8 @@ class Messages {
       sendingDate: json['sendingDate'] != null
           ? DateTime.parse(json['sendingDate'])
           : DateTime.now(),
-      fullNameSender: json['userNameSender'] ?? '',
-      fullNameReceiver: json['userNameReceiver'] ?? '',
+      fullNameSender: json['fullNameSender'] ?? '',
+      fullNameReceiver: json['fullNameReceiver'] ?? '',
     );
   }
 }
