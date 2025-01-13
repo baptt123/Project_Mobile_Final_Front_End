@@ -33,8 +33,26 @@ class PostService {
 
     return images;
   }
+   // Cập nhật trạng thái bài viết
+   Future<Map<String, dynamic>> updatePost(String postId,
+       {bool? isLike, bool? isSaved}) async {
+     final response = await http.put(
+       Uri.parse('$apiUrl/posts/$postId'),
+       headers: {'Content-Type': 'application/json'},
+       body: json.encode({
+         'isLike': isLike != null ? (isLike ? 1 : 0) : null,
+         'isSaved': isSaved != null ? (isSaved ? 1 : 0) : null,
+       }),
+     );
 
+     if (response.statusCode == 200) {
+       return json.decode(response.body);
+     } else {
+       throw Exception('Failed to update post');
+     }
+   }
 }
+
 void main() async {
   final postService = PostService();
   List<String> postIds = ['6766469550108704fffc2d28', '6766469750108704fffc2d2a', '6766469650108704fffc2d29']; // Giả định danh sách ID bài viết

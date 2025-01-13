@@ -270,11 +270,10 @@
 //   bool get wantKeepAlive => true;
 // }
 import 'package:flutter/material.dart';
-import 'package:quick_social/common/build_context_extension.dart';
-import 'package:quick_social/widgets/loading_image_widget.dart';
-import 'package:quick_social/widgets/error_image_widget.dart';
-
+import 'package:quick_social/models/models.dart';
 import '../dto/postdto.dart';
+import '../pages/comment.dart';
+import 'comments_bottom_sheet.dart';
 
 class PostCard extends StatelessWidget {
   const PostCard({
@@ -282,29 +281,32 @@ class PostCard extends StatelessWidget {
     required this.post,
   });
 
-  final PostDTO post;
+  final Post post;
 
   @override
   Widget build(BuildContext context) {
-    final mobileCard = _mobileCard(context);
-    final tabletCard = _tabletCard(context);
-
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: 8),
-      child: context.responsive<Widget>(
-        sm: mobileCard,
-        md: tabletCard,
+      child: LayoutBuilder(
+        builder: (context, constraints) {
+          // Responsive card layout
+          if (constraints.maxWidth > 600) {
+            return _tabletCard(context);
+          } else {
+            return _mobileCard(context);
+          }
+        },
       ),
     );
   }
 
   Widget _mobileCard(BuildContext context) {
     final textTheme = Theme.of(context).textTheme;
+
     return Column(
       mainAxisSize: MainAxisSize.min,
       children: [
         ListTile(
-          // onTap: () => context.push(route: ProfilePage.route(post.user)),
           leading: CircleAvatar(
             backgroundImage: NetworkImage(post.user.profileImagePath),
           ),
@@ -313,7 +315,7 @@ class PostCard extends StatelessWidget {
             style: const TextStyle(fontWeight: FontWeight.bold),
           ),
           subtitle: Text(
-            'Location here', // Nếu có trường location trong model, có thể thêm vào đây
+            'Location here', // Thay bằng vị trí nếu có
             style: textTheme.bodySmall,
           ),
           trailing: IconButton(
@@ -321,12 +323,9 @@ class PostCard extends StatelessWidget {
             icon: const Icon(Icons.more_vert),
           ),
         ),
-        SizedBox(
-          width: double.infinity,
-          child: Padding(
-            padding: const EdgeInsets.fromLTRB(16, 16, 16, 0),
-            child: Text(post.caption),
-          ),
+        Padding(
+          padding: const EdgeInsets.all(16.0),
+          child: Text(post.caption),
         ),
         Padding(
           padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 16),
@@ -334,7 +333,7 @@ class PostCard extends StatelessWidget {
         ),
         Padding(
           padding: const EdgeInsets.symmetric(horizontal: 16),
-          child: _postButtons(),
+          child: _postButtons(context),
         ),
       ],
     );
@@ -342,12 +341,11 @@ class PostCard extends StatelessWidget {
 
   Widget _tabletCard(BuildContext context) {
     final textTheme = Theme.of(context).textTheme;
+
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 16),
       child: IntrinsicHeight(
         child: Row(
-          mainAxisSize: MainAxisSize.min,
-          crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Expanded(
               child: Padding(
@@ -362,40 +360,24 @@ class PostCard extends StatelessWidget {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
-                    Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      mainAxisSize: MainAxisSize.min,
-                      children: [
-                        ListTile(
-                          onTap: () {
-                            // context.push(route: ProfilePage.route(post.user));
-                          },
-                          contentPadding: EdgeInsets.zero,
-                          leading: CircleAvatar(
-                            backgroundImage:
-                            NetworkImage(post.user.profileImagePath),
-                          ),
-                          title: Text(
-                            post.user.userName,
-                            style: const TextStyle(
-                              fontWeight: FontWeight.bold,
-                              overflow: TextOverflow.ellipsis,
-                            ),
-                          ),
-                          subtitle: Text(
-                            'Location here',
-                            style: textTheme.bodySmall?.copyWith(
-                              overflow: TextOverflow.ellipsis,
-                            ),
-                          ),
-                        ),
-                        Padding(
-                          padding: const EdgeInsets.only(top: 16),
-                          child: Text(post.caption),
-                        ),
-                      ],
+                    ListTile(
+                      leading: CircleAvatar(
+                        backgroundImage: NetworkImage(post.user.profileImagePath),
+                      ),
+                      title: Text(
+                        post.user.userName,
+                        style: const TextStyle(fontWeight: FontWeight.bold),
+                      ),
+                      subtitle: Text(
+                        'Location here', // Thay bằng vị trí nếu có
+                        style: textTheme.bodySmall,
+                      ),
                     ),
-                    _postButtons(),
+                    Padding(
+                      padding: const EdgeInsets.only(top: 16),
+                      child: Text(post.caption),
+                    ),
+                    _postButtons(context),
                   ],
                 ),
               ),
@@ -408,31 +390,41 @@ class PostCard extends StatelessWidget {
 
   Widget _postImage() {
     return Image.network(
-      post.media, // Đây là nơi hiển thị ảnh bài viết
-      fit: BoxFit.fitWidth,
-      loadingBuilder: (ctx, child, progress) {
+      post.media,
+      fit: BoxFit.cover,
+      loadingBuilder: (context, child, progress) {
         if (progress == null) return child;
-        return const AspectRatio(
-          aspectRatio: 16 / 9,
-          child: LoadingImageWidget(),
-        );
+        return const Center(child: CircularProgressIndicator());
       },
-      errorBuilder: (ctx, _, __) {
-        return const AspectRatio(
-          aspectRatio: 16 / 9,
-          child: ErrorImageWidget(),
-        );
+      errorBuilder: (context, error, stackTrace) {
+        return const Center(child: Icon(Icons.broken_image, size: 48));
       },
     );
   }
 
-  Widget _postButtons() {
+  Widget _postButtons(BuildContext context) {
     return Row(
       mainAxisAlignment: MainAxisAlignment.spaceEvenly,
       children: [
-        // Các button like, comment, save
-        // Cập nhật lại theo yêu cầu
+        IconButton(
+          icon: Icon(
+            post.isLiked == 1 ? Icons.favorite : Icons.favorite_border,
+            color: post.isLiked == 1 ? Colors.red : null,
+          ),
+          onPressed: () {
+            print("Liked post: ${post.id}");
+          },
+          tooltip: "Like",
+        ),
+        IconButton(
+          icon: const Icon(Icons.comment_outlined),
+          onPressed: () {
+            CommentsBottomSheet.showCommentsBottomSheet(context, post: post);
+          },
+          tooltip: "Comment",
+        ),
       ],
     );
   }
 }
+
