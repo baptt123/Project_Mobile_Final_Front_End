@@ -2,6 +2,8 @@ import 'dart:convert';
 
 import 'package:flutter/material.dart';
 import 'package:get_storage/get_storage.dart';
+import 'package:quick_social/wigetforuser/updateavatar.dart';
+import 'package:quick_social/wigetforuser/updateinfor.dart';
 
 import '../models/user.dart';
 import '../service/postservice.dart';
@@ -31,13 +33,15 @@ class ProfileScreen extends StatefulWidget {
 }
 
 class _ProfileScreenState extends State<ProfileScreen> {
+  String imageBackground = "https://hoanghamobile.com/tin-tuc/wp-content/uploads/2024/05/anh-mau-xanh-duong-42.jpg";
   User? currentUser; // Biến lưu trữ thông tin người dùng
   int selectedTabIndex = 0;
   PostService postService = new PostService();
   late List<String> postsImages =[] ;
-
+String imagePath ="" ;
   late List<String> postShareImage = [
   ];
+
   @override
   void initState() {
     super.initState();
@@ -56,7 +60,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
 
       // Chuyển đổi List<int> thành List<String>
       List<String> postIds = currentUser!.postsSaved.map((id) => id.toString()).toList();
-
+    imagePath = currentUser!.profileImagePath;
       // Chờ hàm getListImageById trả về trước khi gán vào postsImages
       List<String> images = await postService.getListImageById(postIds);
       List<String> postImageSharesId = currentUser!.postsShared.map((id) => id.toString()).toList();
@@ -65,6 +69,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
         postsImages = images;  // Cập nhật dữ liệu ảnh vào postsImages
         postShareImage = imageShares;  // Cập nhật dữ liệu ảnh vào postShareImage
       });
+      // print("Image Path: $imagePath");
     }
   }
 
@@ -77,7 +82,12 @@ class _ProfileScreenState extends State<ProfileScreen> {
         actions: [
           IconButton(
             icon: const Icon(Icons.settings, color: Colors.black),
-            onPressed: () {},
+            onPressed: () {
+              Navigator.pushReplacement(
+                context,
+                MaterialPageRoute(builder: (context) =>  UpdateUserScreen()),
+              );
+            },
           ),
         ],
       ),
@@ -89,22 +99,32 @@ class _ProfileScreenState extends State<ProfileScreen> {
             Stack(
               alignment: Alignment.center,
               children: [
-                Image.asset(
-                  'assets/img/test.jpg',
+                Image.network(
+                  imageBackground,
                   width: double.infinity,
                   height: 200,
                   fit: BoxFit.cover,
                 ),
+
                 Positioned(
                   top: 100,
-                  child: CircleAvatar(
-                    radius: 50,
-                    backgroundImage: currentUser?.profileImagePath != null
-                        ? AssetImage(currentUser!.profileImagePath)
-                        : AssetImage('assets/img/avt.jpg'),
-                    backgroundColor: Colors.white,
+                  child: GestureDetector(
+                    onTap: () {
+                      Navigator.pushReplacement(
+                        context,
+                        MaterialPageRoute(builder: (context) =>  ChangeProfilePictureApp()),
+                      );
+                    },
+                    child: CircleAvatar(
+                      radius: 50,
+                      backgroundImage: currentUser?.profileImagePath?.isNotEmpty == true
+                          ? NetworkImage(currentUser!.profileImagePath) as ImageProvider
+                          : AssetImage('assets/img/avt.jpg'),
+                      backgroundColor: Colors.white,
+                    ),
                   ),
                 ),
+
               ],
             ),
             const SizedBox(height: 30),
@@ -217,7 +237,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
             decoration: BoxDecoration(
               borderRadius: BorderRadius.circular(8),
               image: DecorationImage(
-                image: AssetImage(images[index]),
+                image: NetworkImage(images[index]),
                 fit: BoxFit.cover,
               ),
             ),

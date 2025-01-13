@@ -20,7 +20,7 @@ class CallingAPIFriends {
   }
  }
 
- static const String baseUrl = 'http://192.168.67.102:8080/api/friend';
+ static const String baseUrl = 'http://192.168.1.109:8080/api/friend';
 
  // Lấy danh sách bạn bè
  // static Future<List<Map<String, dynamic>>> fetchFriends() async {
