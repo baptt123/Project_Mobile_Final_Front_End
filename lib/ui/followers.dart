@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
-import 'package:quick_social/calling_api/callingapi.dart';
 import '../api/callingapi.dart';
 import '../model/friend.dart';
+import '../wigetforuser/profile.dart';
 
 class FollowersPageList extends StatefulWidget {
   final String currentUserId;
@@ -64,6 +64,15 @@ class _FollowersPageState extends State<FollowersPageList> {
               itemBuilder: (context, index) {
                 final friend = followers[index];
                 return ListTile(
+                  // chuyển hướng
+                  onTap: () {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (context) => ProfileApp(userId: friend.id),
+                      ),
+                    );
+                  },
                   leading: CircleAvatar(
                     backgroundImage: friend.profileImagePath != null &&
                         friend.profileImagePath!.isNotEmpty
