@@ -270,112 +270,136 @@
 //   bool get wantKeepAlive => true;
 // }
 import 'package:flutter/material.dart';
-import 'package:quick_social/models/models.dart';
-import '../dto/postdto.dart';
-import '../pages/comment.dart';
+import 'package:quick_social/common/build_context_extension.dart';
+import 'package:quick_social/widgets/loading_image_widget.dart';
+import 'package:quick_social/widgets/error_image_widget.dart';
+
+import '../models/post.dart';
 import 'comments_bottom_sheet.dart';
 
 class PostCard extends StatelessWidget {
   const PostCard({
     super.key,
     required this.post,
-  });
+    });
 
-  final Post post;
+    final Post post;
 
-  @override
-  Widget build(BuildContext context) {
+    @override
+    Widget build(BuildContext context) {
+    final mobileCard = _mobileCard(context);
+    final tabletCard = _tabletCard(context);
+
     return Padding(
-      padding: const EdgeInsets.symmetric(vertical: 8),
-      child: LayoutBuilder(
-        builder: (context, constraints) {
-          // Responsive card layout
-          if (constraints.maxWidth > 600) {
-            return _tabletCard(context);
-          } else {
-            return _mobileCard(context);
-          }
-        },
-      ),
+    padding: const EdgeInsets.symmetric(vertical: 8),
+    child: context.responsive<Widget>(
+    sm: mobileCard,
+    md: tabletCard,
+    ),
     );
-  }
+    }
 
-  Widget _mobileCard(BuildContext context) {
-    final textTheme = Theme.of(context).textTheme;
-
+    Widget _mobileCard(BuildContext context) {
+    final textTheme = Theme
+        .of(context)
+        .textTheme;
     return Column(
-      mainAxisSize: MainAxisSize.min,
-      children: [
-        ListTile(
-          leading: CircleAvatar(
-            backgroundImage: NetworkImage(post.user.profileImagePath),
-          ),
-          title: Text(
-            post.user.userName,
-            style: const TextStyle(fontWeight: FontWeight.bold),
-          ),
-          subtitle: Text(
-            'Location here', // Thay bằng vị trí nếu có
-            style: textTheme.bodySmall,
-          ),
-          trailing: IconButton(
-            onPressed: () {},
-            icon: const Icon(Icons.more_vert),
-          ),
-        ),
-        Padding(
-          padding: const EdgeInsets.all(16.0),
-          child: Text(post.caption),
-        ),
-        Padding(
-          padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 16),
-          child: _postImage(),
-        ),
-        Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 16),
-          child: _postButtons(context),
-        ),
-      ],
+    mainAxisSize: MainAxisSize.min,
+    children: [
+    ListTile(
+    // onTap: () => context.push(route: ProfilePage.route(post.user)),
+    leading: CircleAvatar(
+    backgroundImage: NetworkImage(post.user.profileImagePath),
+    ),
+    title: Text(
+    post.user.userName,
+    style: const TextStyle(fontWeight: FontWeight.bold),
+    ),
+    subtitle: Text(
+    'Location here',
+    // Nếu có trường location trong model, có thể thêm vào đây
+    style: textTheme.bodySmall,
+    ),
+    trailing: IconButton(
+    onPressed: () {},
+    icon: const Icon(Icons.more_vert),
+    ),
+    ),
+    SizedBox(
+    width: double.infinity,
+    child: Padding(
+    padding: const EdgeInsets.fromLTRB(16, 16, 16, 0),
+    child: Text(post.caption),
+    ),
+    ),
+    Padding(
+    padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 16),
+    child: _postImage(),
+    ),
+    Padding(
+    padding: const EdgeInsets.symmetric(horizontal: 16),
+    child: _postButtons(context),
+    ),
+    ],
     );
-  }
+    }
 
-  Widget _tabletCard(BuildContext context) {
-    final textTheme = Theme.of(context).textTheme;
-
+    Widget _tabletCard(BuildContext context) {
+    final textTheme = Theme
+        .of(context)
+        .textTheme;
     return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 16),
-      child: IntrinsicHeight(
-        child: Row(
-          children: [
-            Expanded(
-              child: Padding(
-                padding: const EdgeInsets.symmetric(vertical: 8),
-                child: _postImage(),
-              ),
-            ),
-            Expanded(
-              child: Padding(
-                padding: const EdgeInsets.only(left: 16),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    ListTile(
-                      leading: CircleAvatar(
-                        backgroundImage: NetworkImage(post.user.profileImagePath),
-                      ),
-                      title: Text(
-                        post.user.userName,
-                        style: const TextStyle(fontWeight: FontWeight.bold),
-                      ),
-                      subtitle: Text(
-                        'Location here', // Thay bằng vị trí nếu có
-                        style: textTheme.bodySmall,
-                      ),
-                    ),
-                    Padding(
-                      padding: const EdgeInsets.only(top: 16),
-                      child: Text(post.caption),
+    padding: const EdgeInsets.symmetric(horizontal: 16),
+    child: IntrinsicHeight(
+    child: Row(
+    mainAxisSize: MainAxisSize.min,
+    crossAxisAlignment: CrossAxisAlignment.start,
+    children: [
+    Expanded(
+    child: Padding(
+    padding: const EdgeInsets.symmetric(vertical: 8),
+    child: _postImage(),
+    ),
+    ),
+    Expanded(
+    child: Padding(
+    padding: const EdgeInsets.only(left: 16),
+    child: Column(
+    crossAxisAlignment: CrossAxisAlignment.start,
+    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+    children: [
+    Column(
+    crossAxisAlignment: CrossAxisAlignment.start,
+    mainAxisSize: MainAxisSize.min,
+    children: [
+    ListTile(
+    onTap: () {
+    // context.push(route: ProfilePage.route(post.user));
+    },
+    contentPadding: EdgeInsets.zero,
+    leading: CircleAvatar(
+    backgroundImage:
+    NetworkImage(post.user.profileImagePath),
+    ),
+    title: Text(
+    post.user.userName,
+                            style: const TextStyle(
+                              fontWeight: FontWeight.bold,
+                              overflow: TextOverflow.ellipsis,
+                            ),
+                          ),
+                          subtitle: Text(
+                            'Location here',
+                            style: textTheme.bodySmall?.copyWith(
+                              overflow: TextOverflow.ellipsis,
+                            ),
+                          ),
+                        ),
+                        Padding(
+                          padding: const EdgeInsets.only(top: 16),
+                          child: Text(post.caption),
+                        ),
+                      ],
                     ),
                     _postButtons(context),
                   ],
@@ -427,4 +451,3 @@ class PostCard extends StatelessWidget {
     );
   }
 }
-

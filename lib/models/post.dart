@@ -107,12 +107,13 @@ class Post {
       saveCount: json['saveCount'],
       shareCount: json['shareCount'],
       media: json['media'],
-      comments:(json['comments'] as List<dynamic>?)
+      comments: (json['comments'] as List<dynamic>?)
           ?.map((comment) => Comment.fromJson(comment))
           .toList() ??
-          [], // If null, default to an empty list
+          [],
+      // If null, default to an empty list
       isLiked: 0, // Xử lý null cho comments
     );
   }
-}
 
+}

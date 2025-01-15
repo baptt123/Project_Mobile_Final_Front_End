@@ -19,17 +19,17 @@ class CommentsBottomSheet {
 Future<void> submitComment({
   required String postId,
   required String id,
-  required String fullName,
+  required String fullname,
   required String text,
 }) async {
   try {
-    final url = Uri.parse('http://192.168.1.28:8080/api/post/get/${postId}/comments');
+    final url = Uri.parse('http://192.168.0.119:8080/posts/$postId/comments');
     final response = await http.post(
       url,
       headers: {'Content-Type': 'application/json'},
       body: jsonEncode({
         'id': id,
-        'fullName': fullName, // Lấy fullname từ người dùng hiện tại
+        'fullname': fullname, // Lấy fullname từ người dùng hiện tại
         'text': text,
       }),
     );
@@ -178,7 +178,7 @@ class _CommentSectionState extends State<_CommentSection> {
       await submitComment(
         postId: widget.post.id,
         id: commentId,
-        fullName: fullname,
+        fullname: fullname,
         text: text,
       );
 

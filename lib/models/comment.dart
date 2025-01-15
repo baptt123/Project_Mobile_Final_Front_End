@@ -1,14 +1,18 @@
 import 'dart:convert';
+import 'dart:math';
+
+import 'package:faker/faker.dart';
+import 'package:quick_social/models/models.dart';
 
 class Comment {
   String id; // Unique identifier for the comment
-  String fullname; // ID of the post the comment belongs to
+  String fullName; // ID of the post the comment belongs to
   String text; // Content of the comment
 
 
   Comment({
     required this.id,
-   required this.fullname,
+    required this.fullName,
     required this.text,
   });
 
@@ -16,7 +20,7 @@ class Comment {
   factory Comment.fromJson(Map<String, dynamic> json) {
     return Comment(
       id: json['id'] ?? '',
-      fullname: json['fullname'] ?? '',
+      fullName: json['fullName'] ?? '',
       text: json['text'] ?? '',
     );
   }
@@ -25,7 +29,7 @@ class Comment {
   Map<String, dynamic> toJson() {
     return {
       'id': id,
-      'fullname': fullname,
+      'fullName': fullName,
       'text': text,
     };
   }
