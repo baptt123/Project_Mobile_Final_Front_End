@@ -1,29 +1,41 @@
-// import 'dart:math';
-//
-// import 'package:faker/faker.dart';
-// import 'package:quick_social/models/models.dart';
-//
-// class Comment {
-//   final User owner;
-//   final String body;
-//   final int likeCount;
-//
-//   const Comment({
-//     required this.owner,
-//     required this.body,
-//     required this.likeCount,
-//   });
-//
-//   static List<Comment> generateDummyComments() {
-//     return List.generate(
-//       Random().nextInt(10),
-//       (index) {
-//         return Comment(
-//           owner: User.dummyUsers[Random().nextInt(User.dummyUsers.length - 1)],
-//           body: Faker().lorem.sentence(),
-//           likeCount: Random().nextInt(1000),
-//         );
-//       },
-//     );
-//   }
-// }
+import 'dart:convert';
+import 'dart:math';
+
+import 'package:faker/faker.dart';
+import 'package:quick_social/models/models.dart';
+
+class Comment {
+  String id; // Unique identifier for the comment
+  String fullName; // ID of the post the comment belongs to
+  String text; // Content of the comment
+
+
+  Comment({
+    required this.id,
+    required this.fullName,
+    required this.text,
+  });
+
+  // Method to convert from JSON to Comment
+  factory Comment.fromJson(Map<String, dynamic> json) {
+    return Comment(
+      id: json['id'] ?? '',
+      fullName: json['fullName'] ?? '',
+      text: json['text'] ?? '',
+    );
+  }
+
+  // Method to convert from Comment to JSON
+  Map<String, dynamic> toJson() {
+    return {
+      'id': id,
+      'fullName': fullName,
+      'text': text,
+    };
+  }
+
+  @override
+  String toString() {
+    return jsonEncode(toJson());
+  }
+}
