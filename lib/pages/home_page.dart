@@ -157,6 +157,7 @@ import 'package:flutter_client_sse/flutter_client_sse.dart';
 import 'package:flutter_client_sse/constants/sse_request_type_enum.dart';
 import 'package:quick_social/pages/createstory.dart';
 import 'package:quick_social/pages/pages.dart';
+import 'package:quick_social/wigetforuser/nontificationui.dart';
 import 'package:quick_social/wigetforuser/profile.dart';
 import 'package:quick_social/common/common.dart';
 
@@ -344,8 +345,13 @@ class _HomePageState extends State<HomePage> {
       physics: const NeverScrollableScrollPhysics(),
       children: [
         const FeedPage(),
+
+         NotificationScreenUI(),
+        const ProfileApp(),
+
         const NotificationsPage(),
         // const ProfileApp(),
+
         Createnewpost(),
         Createstory(),
       ],

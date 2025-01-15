@@ -2,6 +2,11 @@ import 'dart:convert';
 
 import 'package:flutter/material.dart';
 import 'package:get_storage/get_storage.dart';
+import 'package:quick_social/ui/followers.dart';
+import 'package:quick_social/ui/following.dart';
+import 'package:quick_social/wigetforuser/postwidget.dart';
+import 'package:quick_social/wigetforuser/updateavatar.dart';
+import 'package:quick_social/wigetforuser/updateinfor.dart';
 
 import '../models/user.dart';
 import '../service/postservice.dart';
@@ -33,13 +38,16 @@ class ProfileScreen extends StatefulWidget {
 }
 
 class _ProfileScreenState extends State<ProfileScreen> {
+  String imageBackground = "https://hoanghamobile.com/tin-tuc/wp-content/uploads/2024/05/anh-mau-xanh-duong-42.jpg";
   User? currentUser; // Biến lưu trữ thông tin người dùng
   int selectedTabIndex = 0;
   PostService postService = new PostService();
   late List<String> postsImages =[] ;
-
+String imagePath ="" ;
   late List<String> postShareImage = [
   ];
+  late List<String> postSavedId = [];
+  late List<String> postShareId = [];
   @override
   void initState() {
     super.initState();
@@ -55,10 +63,11 @@ class _ProfileScreenState extends State<ProfileScreen> {
       setState(() {
         currentUser = User.fromJson(userJson);
       });
-
+    postSavedId = currentUser!.postsSaved;
+    postShareId = currentUser!.postsShared;
       // Chuyển đổi List<int> thành List<String>
       List<String> postIds = currentUser!.postsSaved.map((id) => id.toString()).toList();
-
+    imagePath = currentUser!.profileImagePath;
       // Chờ hàm getListImageById trả về trước khi gán vào postsImages
       List<String> images = await postService.getListImageById(postIds);
       List<String> postImageSharesId = currentUser!.postsShared.map((id) => id.toString()).toList();
@@ -67,6 +76,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
         postsImages = images;  // Cập nhật dữ liệu ảnh vào postsImages
         postShareImage = imageShares;  // Cập nhật dữ liệu ảnh vào postShareImage
       });
+      // print("Image Path: $imagePath");
     }
   }
 
@@ -79,7 +89,12 @@ class _ProfileScreenState extends State<ProfileScreen> {
         actions: [
           IconButton(
             icon: const Icon(Icons.settings, color: Colors.black),
-            onPressed: () {},
+            onPressed: () {
+              Navigator.pushReplacement(
+                context,
+                MaterialPageRoute(builder: (context) =>  UpdateUserScreen()),
+              );
+            },
           ),
         ],
       ),
@@ -91,22 +106,32 @@ class _ProfileScreenState extends State<ProfileScreen> {
             Stack(
               alignment: Alignment.center,
               children: [
-                Image.asset(
-                  'assets/img/test.jpg',
+                Image.network(
+                  imageBackground,
                   width: double.infinity,
                   height: 200,
                   fit: BoxFit.cover,
                 ),
+
                 Positioned(
                   top: 100,
-                  child: CircleAvatar(
-                    radius: 50,
-                    backgroundImage: currentUser?.profileImagePath != null
-                        ? AssetImage(currentUser!.profileImagePath)
-                        : AssetImage('assets/img/avt.jpg'),
-                    backgroundColor: Colors.white,
+                  child: GestureDetector(
+                    onTap: () {
+                      Navigator.pushReplacement(
+                        context,
+                        MaterialPageRoute(builder: (context) =>  ChangeProfilePictureApp()),
+                      );
+                    },
+                    child: CircleAvatar(
+                      radius: 50,
+                      backgroundImage: currentUser?.profileImagePath?.isNotEmpty == true
+                          ? NetworkImage(currentUser!.profileImagePath) as ImageProvider
+                          : AssetImage('assets/img/avt.jpg'),
+                      backgroundColor: Colors.white,
+                    ),
                   ),
                 ),
+
               ],
             ),
             const SizedBox(height: 30),
@@ -131,24 +156,46 @@ class _ProfileScreenState extends State<ProfileScreen> {
             Row(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
-                Column(
-                  children: [
-                    Text(
-                      '${currentUser?.followersCount ?? 0}',
-                      style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
-                    ),
-                    const Text('Followers'),
-                  ],
+                GestureDetector(
+                  onTap: () {
+                    // Điều hướng đến trang FollowersPageList
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (context) => FollowersPageList(currentUserId: currentUser?.id ?? ''),
+                      ),
+                    );
+                  },
+                  child: Column(
+                    children: [
+                      Text(
+                        '${currentUser?.followersCount ?? 0}',
+                        style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+                      ),
+                      const Text('Followers'),
+                    ],
+                  ),
                 ),
                 const SizedBox(width: 40),
-                Column(
-                  children: [
-                    Text(
-                      '${currentUser?.followingCount ?? 0}',
-                      style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
-                    ),
-                    const Text('Following'),
-                  ],
+                GestureDetector(
+                  onTap: () {
+                    // Điều hướng đến trang FollowingPageList (chưa được định nghĩa, nhưng sẽ tương tự FollowersPageList)
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (context) => FriendsFollowingScreen(userId: currentUser?.id?? ''),
+                      ),
+                    );
+                  },
+                  child: Column(
+                    children: [
+                      Text(
+                        '${currentUser?.followingCount ?? 0}',
+                        style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+                      ),
+                      const Text('Following'),
+                    ],
+                  ),
                 ),
               ],
             ),
@@ -188,15 +235,14 @@ class _ProfileScreenState extends State<ProfileScreen> {
               ],
             ),
             buildPostsGrid(
-              images: selectedTabIndex == 0 ? postsImages : postShareImage,
+              images: selectedTabIndex == 0 ? postsImages : postShareImage, postIds: postShareId,
             ),
           ],
         ),
       ),
     );
   }
-
-  Widget buildPostsGrid({required List<String> images}) {
+  Widget buildPostsGrid({required List<String> images, required List<String> postIds}) {
     return GridView.builder(
       padding: const EdgeInsets.all(16),
       shrinkWrap: true,
@@ -210,16 +256,19 @@ class _ProfileScreenState extends State<ProfileScreen> {
       itemBuilder: (context, index) {
         return GestureDetector(
           onTap: () {
+            // Điều hướng tới trang chi tiết bài viết và truyền ID bài viết
             Navigator.push(
               context,
-              MaterialPageRoute(builder: (context) => LoginScreen()),
+              MaterialPageRoute(
+                builder: (context) => SocialPostWidget(postId: postIds[index]),
+              ),
             );
           },
           child: Container(
             decoration: BoxDecoration(
               borderRadius: BorderRadius.circular(8),
               image: DecorationImage(
-                image: AssetImage(images[index]),
+                image: NetworkImage(images[index]),
                 fit: BoxFit.cover,
               ),
             ),
@@ -228,4 +277,5 @@ class _ProfileScreenState extends State<ProfileScreen> {
       },
     );
   }
+
 }

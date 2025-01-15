@@ -52,32 +52,32 @@
 //     );
 //   }
 // }
-class Notifications {
-  final int id;
-  final int idUser;
-  final String action;
-
-  Notifications({
-    required this.id,
-    required this.idUser,
-    required this.action,
-  });
-
-  // Convert from JSON
-  factory Notifications.fromJson(Map<String, dynamic> json) {
-    return Notifications(
-      id: json['id'] as int,
-      idUser: json['idUser'] as int,
-      action: json['action'] as String,
-    );
-  }
-
-  // Convert to JSON
-  Map<String, dynamic> toJson() {
-    return {
-      'id': id,
-      'idUser': idUser,
-      'action': action,
-    };
-  }
-}
+// class Notifications {
+//   final int id;
+//   final int idUser;
+//   final String action;
+//
+//   Notifications({
+//     required this.id,
+//     required this.idUser,
+//     required this.action,
+//   });
+//
+//   // Convert from JSON
+//   factory Notifications.fromJson(Map<String, dynamic> json) {
+//     return Notifications(
+//       id: json['id'] as int,
+//       idUser: json['idUser'] as int,
+//       action: json['action'] as String,
+//     );
+//   }
+//
+//   // Convert to JSON
+//   Map<String, dynamic> toJson() {
+//     return {
+//       'id': id,
+//       'idUser': idUser,
+//       'action': action,
+//     };
+//   }
+// }
