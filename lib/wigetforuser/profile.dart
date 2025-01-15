@@ -5,6 +5,7 @@ import 'package:get_storage/get_storage.dart';
 
 import '../models/user.dart';
 import '../service/postservice.dart';
+import '../ui/FollowList.dart';
 import 'login.dart';
 
 
@@ -80,6 +81,17 @@ class _ProfileScreenState extends State<ProfileScreen> {
           IconButton(
             icon: const Icon(Icons.settings, color: Colors.black),
             onPressed: () {},
+          ),
+          IconButton(
+            icon: const Icon(Icons.group, color: Colors.black),
+            onPressed: () {
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (context) => FollowPageList(currentUserId: currentUser!.id),
+                ),
+              );
+            },
           ),
         ],
       ),

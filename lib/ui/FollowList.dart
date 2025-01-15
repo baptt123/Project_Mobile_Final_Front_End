@@ -1,3 +1,4 @@
+
 import 'package:flutter/material.dart';
 
 import '../api/callingapi.dart';
@@ -19,41 +20,38 @@ class _FollowPageState extends State<FollowPageList> {
   @override
   void initState() {
     super.initState();
-    suggestedFriends =  CallingAPI().fetchSuggestedFriends(widget.currentUserId);
+    suggestedFriends = CallingAPI().fetchSuggestedFriends(widget.currentUserId);
   }
 
   Future<void> toggleFollow(Friend friend) async {
     try {
       if (friend.isFollowers) {
-        // Call API to unfollow
         await CallingAPI().unfollowUser(widget.currentUserId, friend.id);
         setState(() {
           friend.isFollowers = false;
         });
       } else {
-        // Call API to follow
         await CallingAPI().followUser(widget.currentUserId, friend.id);
         setState(() {
           friend.isFollowers = true;
         });
       }
-
     } catch (e) {
       print("Error in toggleFollow: $e");
-      // Handle error (e.g., show a Snackbar)
       ScaffoldMessenger.of(context).showSnackBar(SnackBar(
         content: Text("Error: $e"),
         backgroundColor: Colors.red,
       ));
     }
-
   }
 
   @override
   Widget build(BuildContext context) {
+
     return Scaffold(
       appBar: AppBar(
         title: Text("Gợi ý kết bạn"),
+        centerTitle: true,
       ),
       body: FutureBuilder<List<Friend>>(
         future: suggestedFriends,
@@ -65,46 +63,61 @@ class _FollowPageState extends State<FollowPageList> {
           } else if (snapshot.hasData && snapshot.data!.isNotEmpty) {
             final friends = snapshot.data!;
             return ListView.builder(
+              padding: EdgeInsets.all(8),
               itemCount: friends.length,
               itemBuilder: (context, index) {
                 final friend = friends[index];
-                return ListTile(
-                  // chuyển hướng
-                  onTap: () {
-                    Navigator.push(
-                      context,
-                      MaterialPageRoute(
-                        builder: (context) => ProfileApp(userId: friend.id),
-                      ),
-                    );
-                  },
-                  leading: CircleAvatar(
-                    // backgroundImage: NetworkImage(friend.profileImageUrl ?? ''),
-                    backgroundImage: friend.profileImagePath != null && friend.profileImagePath!.isNotEmpty
-                        ? NetworkImage(friend.profileImagePath!)
-                    // : AssetImage('assets/img/test.jpg'),
-                        : NetworkImage("https://nld.mediacdn.vn/2019/1/23/iron-man-15482507516511342859204.jpg"),
-                    // : AssetImage("https://nld.mediacdn.vn/2019/1/23/iron-man-15482507516511342859204.jpg") as ImageProvider,
+                return Card(
+                  elevation: 4,
+                  margin: EdgeInsets.symmetric(vertical: 8),
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(12),
                   ),
-                  title: Text(friend.fullName, //?? "Không rõ tên"
-                    style: TextStyle(fontWeight: FontWeight.bold),),
-                  trailing: ElevatedButton(
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: friend.isFollowers ? Colors.grey : Colors.blue,
-                      padding: EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-                      minimumSize: Size(50, 30),
+                  child: ListTile(
+                    onTap: () {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (context) => ProfileApp(userId: friend.id),
+                        ),
+                      );
+                    },
+                    leading: CircleAvatar(
+                      radius: 30,
+                      backgroundImage: friend.profileImagePath != null &&
+                          friend.profileImagePath!.isNotEmpty
+                          ? NetworkImage(friend.profileImagePath!)
+                          : NetworkImage(
+                          "https://nld.mediacdn.vn/2019/1/23/iron-man-15482507516511342859204.jpg"),
                     ),
-                    // onPressed: () => toggleFollow(friend),
-                    onPressed: () => toggleFollow(friend),
-                    // icon: Icon(Icons.person_add),
-                    child: Text(friend.isFollowers ? 'Unfollow' : 'Follow'),
+                    title: Text(
+                      friend.fullName,
+                      style: TextStyle(
+                        fontWeight: FontWeight.bold,
+                        fontSize: 16,
+                      ),
+                      overflow: TextOverflow.ellipsis, // Cắt tên nếu quá dài
+                      maxLines: 1,
+                    ),
+                    trailing: ElevatedButton(
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: friend.isFollowers
+                            ? Colors.grey
+                            : Colors.blue,
+                        padding:
+                        EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(10),
+                        ),
+                        minimumSize: Size(60, 30), // Kích thước tối thiểu
+                      ),
+                      onPressed: () => toggleFollow(friend),
+                      child: Text(
+                        friend.isFollowers ? 'Unfollow' : 'Follow',
+                        style: TextStyle(fontSize: 12),
+                      ),
+                    ),
                   ),
-                  // trailing: ElevatedButton(
-                  //   onPressed: () {
-                  //     // Logic follow/unfollow sẽ đặt tại đây
-                  //   },
-                  //   child: Text('Follow'),
-                  // ),
                 );
               },
             );
@@ -116,22 +129,9 @@ class _FollowPageState extends State<FollowPageList> {
     );
   }
 }
+
 void main() {
   runApp(MaterialApp(
     home: FollowPageList(currentUserId: '6784b0cdc4f1d3341df6bce4'),
-    //   home: FollowPageList(currentUserId: '67809556eb980ca3d80c88b6'),
-
   ));
 }
-
-
-// // Sau khi thay đổi trạng thái, gọi lại API để làm mới dữ liệu
-// setState(() {
-//   suggestedFriends = CallingAPI().fetchSuggestedFriends(widget.currentUserId);
-// });
-// Future<void> fetchAndSetSuggestedFriends(String userId) async {
-//   final suggestedFriends = await CallingAPI().fetchSuggestedFriends(userId);
-//   setState(() {
-//     suggestedFriends = suggestedFriends; // Cập nhật _suggestedFriends nếu có biến này
-//   });
-// }
