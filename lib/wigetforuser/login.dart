@@ -56,7 +56,7 @@ class _LoginScreenState extends State<LoginScreen> {
           // Chuyển hướng đến màn hình khác (ShowUser)
           Navigator.pushReplacement(
             context,
-            MaterialPageRoute(builder: (context) =>  HomePage()),
+            MaterialPageRoute(builder: (context) =>  ChatScreen()),
           );
         } else {
           // Trường hợp thông tin không hợp lệ

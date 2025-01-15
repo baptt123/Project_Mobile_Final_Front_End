@@ -345,7 +345,7 @@ class _HomePageState extends State<HomePage> {
       children: [
         const FeedPage(),
         const NotificationsPage(),
-        const ProfileApp(),
+        // const ProfileApp(),
         Createnewpost(),
         Createstory(),
       ],
