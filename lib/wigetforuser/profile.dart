@@ -2,6 +2,9 @@ import 'dart:convert';
 
 import 'package:flutter/material.dart';
 import 'package:get_storage/get_storage.dart';
+import 'package:quick_social/ui/followers.dart';
+import 'package:quick_social/ui/following.dart';
+import 'package:quick_social/wigetforuser/postwidget.dart';
 import 'package:quick_social/wigetforuser/updateavatar.dart';
 import 'package:quick_social/wigetforuser/updateinfor.dart';
 
@@ -41,7 +44,8 @@ class _ProfileScreenState extends State<ProfileScreen> {
 String imagePath ="" ;
   late List<String> postShareImage = [
   ];
-
+  late List<String> postSavedId = [];
+  late List<String> postShareId = [];
   @override
   void initState() {
     super.initState();
@@ -57,7 +61,8 @@ String imagePath ="" ;
       setState(() {
         currentUser = User.fromJson(userJson);
       });
-
+    postSavedId = currentUser!.postsSaved;
+    postShareId = currentUser!.postsShared;
       // Chuyển đổi List<int> thành List<String>
       List<String> postIds = currentUser!.postsSaved.map((id) => id.toString()).toList();
     imagePath = currentUser!.profileImagePath;
@@ -149,24 +154,46 @@ String imagePath ="" ;
             Row(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
-                Column(
-                  children: [
-                    Text(
-                      '${currentUser?.followersCount ?? 0}',
-                      style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
-                    ),
-                    const Text('Followers'),
-                  ],
+                GestureDetector(
+                  onTap: () {
+                    // Điều hướng đến trang FollowersPageList
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (context) => FollowersPageList(currentUserId: currentUser?.id ?? ''),
+                      ),
+                    );
+                  },
+                  child: Column(
+                    children: [
+                      Text(
+                        '${currentUser?.followersCount ?? 0}',
+                        style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+                      ),
+                      const Text('Followers'),
+                    ],
+                  ),
                 ),
                 const SizedBox(width: 40),
-                Column(
-                  children: [
-                    Text(
-                      '${currentUser?.followingCount ?? 0}',
-                      style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
-                    ),
-                    const Text('Following'),
-                  ],
+                GestureDetector(
+                  onTap: () {
+                    // Điều hướng đến trang FollowingPageList (chưa được định nghĩa, nhưng sẽ tương tự FollowersPageList)
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (context) => FriendsFollowingScreen(userId: currentUser?.id?? ''),
+                      ),
+                    );
+                  },
+                  child: Column(
+                    children: [
+                      Text(
+                        '${currentUser?.followingCount ?? 0}',
+                        style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+                      ),
+                      const Text('Following'),
+                    ],
+                  ),
                 ),
               ],
             ),
@@ -206,15 +233,14 @@ String imagePath ="" ;
               ],
             ),
             buildPostsGrid(
-              images: selectedTabIndex == 0 ? postsImages : postShareImage,
+              images: selectedTabIndex == 0 ? postsImages : postShareImage, postIds: postShareId,
             ),
           ],
         ),
       ),
     );
   }
-
-  Widget buildPostsGrid({required List<String> images}) {
+  Widget buildPostsGrid({required List<String> images, required List<String> postIds}) {
     return GridView.builder(
       padding: const EdgeInsets.all(16),
       shrinkWrap: true,
@@ -228,9 +254,12 @@ String imagePath ="" ;
       itemBuilder: (context, index) {
         return GestureDetector(
           onTap: () {
+            // Điều hướng tới trang chi tiết bài viết và truyền ID bài viết
             Navigator.push(
               context,
-              MaterialPageRoute(builder: (context) => LoginScreen()),
+              MaterialPageRoute(
+                builder: (context) => SocialPostWidget(postId: postIds[index]),
+              ),
             );
           },
           child: Container(
@@ -246,4 +275,5 @@ String imagePath ="" ;
       },
     );
   }
+
 }

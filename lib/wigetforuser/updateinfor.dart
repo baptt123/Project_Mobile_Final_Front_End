@@ -43,6 +43,41 @@ class _UpdateUserScreenState extends State<UpdateUserScreen> {
   final TextEditingController _fullNameController = TextEditingController();
   int _gender = 0; // 0: Nam, 1: Nữ
 
+
+  Future<void> updateUserProfile() async {
+    final box = GetStorage();
+    String? userJsonString = box.read('user');
+
+    if (userJsonString != null) {
+      // Chuyển đổi JSON thành đối tượng User
+      Map<String, dynamic> userJson = jsonDecode(userJsonString);
+      User user = User.fromJson(userJson);
+
+      // Cập nhật email, fullName và gender nếu có thay đổi
+      if (_emailController.text.trim().isNotEmpty) {
+        user.email = _emailController.text.trim();
+      }
+      if (_fullNameController.text.trim().isNotEmpty) {
+        user.fullName = _fullNameController.text.trim();
+      }
+      if (_gender == 0 || _gender == 1) {
+        user.gender = _gender;
+      }
+
+      // Ghi lại đối tượng đã cập nhật vào local storage
+      box.write('user', jsonEncode(user.toJson()));
+
+      // Tải lại thông tin người dùng để cập nhật giao diện (nếu cần)
+      await _loadUser();
+
+      print('User profile updated successfully!');
+    } else {
+      print('No user data found in local storage.');
+    }
+  }
+
+
+
   Future<void> _updateUser() async {
     const String apiUrl = "${AppConfig.baseUrl}/api/user/update";
 
@@ -80,6 +115,8 @@ class _UpdateUserScreenState extends State<UpdateUserScreen> {
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(content: Text('Cập nhật thông tin thành công!')),
         );
+        updateUserProfile();
+      await  _loadUser();
         Navigator.pushReplacement(
           context,
           MaterialPageRoute(

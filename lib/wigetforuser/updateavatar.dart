@@ -7,6 +7,7 @@ import 'package:image_picker/image_picker.dart';
 import 'package:http/http.dart' as http;
 import 'package:http_parser/http_parser.dart';
 import 'package:mime/mime.dart';
+import 'package:quick_social/wigetforuser/profile.dart';
 import '../config/AppConfig.dart';
 import '../models/user.dart';
 
@@ -45,6 +46,29 @@ class _ChangeProfilePictureWidgetState extends State<_ChangeProfilePictureWidget
   void initState() {
     super.initState();
     _loadUser();
+  }
+  Future<void> updateProfileImagePath(String newPath) async {
+    final box = GetStorage();
+    String? userJsonString = box.read('user');
+
+    if (userJsonString != null) {
+      // Chuyển đổi JSON thành đối tượng User
+      Map<String, dynamic> userJson = jsonDecode(userJsonString);
+      User user = User.fromJson(userJson);
+
+      // Cập nhật profileImagePath
+      user.profileImagePath = newPath;
+
+      // Ghi lại vào local storage
+      box.write('user', jsonEncode(user.toJson()));
+
+      // Tải lại thông tin người dùng để cập nhật giao diện (nếu cần)
+      await _loadUser();
+
+      print('Profile image path updated successfully: $newPath');
+    } else {
+      print('No user data found in local storage.');
+    }
   }
 
   // Tải thông tin người dùng từ GetStorage
@@ -106,10 +130,15 @@ class _ChangeProfilePictureWidgetState extends State<_ChangeProfilePictureWidget
 
       if (response.statusCode == 200) {
         final responseBody = await response.stream.bytesToString();
-        print('Avatar updated successfully: $responseBody');
-
+        print('$responseBody');
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(content: Text("Ảnh đại diện đã được cập nhật")),
+        );
+          updateProfileImagePath(responseBody);
+          await _loadUser();
+        Navigator.pushReplacement(
+          context,
+          MaterialPageRoute(builder: (context) =>  ProfileScreen()),
         );
       } else {
         final responseBody = await response.stream.bytesToString();
