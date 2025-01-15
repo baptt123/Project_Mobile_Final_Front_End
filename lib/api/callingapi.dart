@@ -20,8 +20,8 @@ class CallingAPI {
       'http://192.168.15.62:8080/api/notification/get-notification';
   static String messagesURL =
       'http://192.168.15.62:8080/api/messages/getmessages';
-  static const String commentURL =
-      'http://192.168.1.28:8080/api/post/get/{postId}/comments}';
+  // static const String commentURL =
+  //     'http://192.168.1.95:8080/api/post/get/{postId}/comments}';
 
 
   // Phương thức GET: Lấy danh sách StoryDTO
@@ -210,7 +210,7 @@ class CallingAPI {
     required String text,
   }) async {
     try {
-      final url = Uri.parse('${commentURL}/api/post/get/$postId/comments');
+      final url = Uri.parse('http://192.168.1.95:8080/api/post/get/$postId/comments');
       final response = await http.post(
         url,
         headers: {'Content-Type': 'application/json'},
