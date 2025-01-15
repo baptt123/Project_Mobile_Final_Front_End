@@ -299,7 +299,6 @@
 //   }
 // }
 
-
 import 'dart:convert';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
@@ -328,6 +327,7 @@ class _ChatScreenState extends State<ChatScreen> {
   void initState() {
     super.initState();
     _loadUserData();
+
     _initializeChat();
   }
 
@@ -343,10 +343,12 @@ class _ChatScreenState extends State<ChatScreen> {
     }
 
     // Lấy thông tin người nhận từ GetStorage
-    Map<String, dynamic>? selectedUser = box.read('selectedUser');
+    String? selectedUser = box.read('selectedUser');
+    print(selectedUser); // Kiểm tra dữ liệu được lưu
     if (selectedUser != null) {
       setState(() {
-        fullNameReceiver = selectedUser['fullName']; // Lưu tên đầy đủ của người nhận
+        fullNameReceiver =
+            selectedUser; // Lưu tên đầy đủ của người nhận
       });
     }
   }
@@ -354,8 +356,8 @@ class _ChatScreenState extends State<ChatScreen> {
   /// Khởi tạo WebSocket và tải tin nhắn
   Future<void> _initializeChat() async {
     try {
-      await _fetchMessages(); // Lấy tin nhắn từ API
-      _connectWebSocket();   // Kết nối WebSocket
+       _fetchMessages(); // Lấy tin nhắn từ API
+      _connectWebSocket(); // Kết nối WebSocket
     } catch (error) {
       print('Error initializing chat: $error');
     } finally {
@@ -368,10 +370,10 @@ class _ChatScreenState extends State<ChatScreen> {
   /// Kết nối WebSocket
   void _connectWebSocket() {
     _channel = IOWebSocketChannel.connect(
-        'ws://192.168.1.90:8080/chat?username=${currentUser?.fullName}');
+        'ws://192.168.67.100:8080/chat?username=${currentUser!.fullName}');
 
     _channel.stream.listen(
-          (data) {
+      (data) {
         final decodedMessage = json.decode(data);
         setState(() {
           messages.add({
@@ -396,7 +398,7 @@ class _ChatScreenState extends State<ChatScreen> {
   Future<void> _fetchMessages() async {
     try {
       final fetchedMessages = await CallingAPI.fetchMessages(
-          currentUser?.fullName ?? '', fullNameReceiver ?? '');
+          currentUser!.fullName ?? '', fullNameReceiver ?? '');
 
       setState(() {
         messages.clear(); // Làm mới danh sách tin nhắn
@@ -455,7 +457,7 @@ class _ChatScreenState extends State<ChatScreen> {
   /// Giao diện hiển thị tin nhắn
   Widget _buildMessageBubble(Map<String, dynamic> message) {
     return Align(
-      alignment: message['fullNameSender'] == currentUser?.fullName
+      alignment: message['fullNameSender'] == currentUser!.fullName
           ? Alignment.centerRight
           : Alignment.centerLeft,
       child: Padding(
@@ -463,7 +465,7 @@ class _ChatScreenState extends State<ChatScreen> {
         child: Container(
           padding: const EdgeInsets.all(10.0),
           decoration: BoxDecoration(
-            color: message['fullNameSender'] == currentUser?.fullName
+            color: message['fullNameSender'] == currentUser!.fullName
                 ? Colors.blue[400]
                 : Colors.grey[800],
             borderRadius: BorderRadius.circular(10.0),
@@ -546,16 +548,16 @@ class _ChatScreenState extends State<ChatScreen> {
             child: isLoading
                 ? Center(child: CircularProgressIndicator())
                 : messages.isEmpty
-                ? Center(
-              child: Text('Chưa có tin nhắn nào'),
-            )
-                : ListView.builder(
-              controller: _scrollController,
-              itemCount: messages.length,
-              itemBuilder: (context, index) {
-                return _buildMessageBubble(messages[index]);
-              },
-            ),
+                    ? Center(
+                        child: Text('Chưa có tin nhắn nào'),
+                      )
+                    : ListView.builder(
+                        controller: _scrollController,
+                        itemCount: messages.length,
+                        itemBuilder: (context, index) {
+                          return _buildMessageBubble(messages[index]);
+                        },
+                      ),
           ),
           Divider(height: 1),
           _buildMessageInput(),

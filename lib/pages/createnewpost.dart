@@ -79,7 +79,7 @@ class _CreatePostWidgetState extends State<CreatePostWidget> {
       // Giải mã JSON thành đối tượng User
       Map<String, dynamic> userJson = jsonDecode(userJsonString);
         currentUser = User.fromJson(userJson);
-        fullName=currentUser?.fullName;
+        fullName=currentUser?.username;
     }
   }
   File? _selectedFile;
@@ -101,13 +101,13 @@ class _CreatePostWidgetState extends State<CreatePostWidget> {
         return AlertDialog(
           title: Text("Select Media"),
           actions: <Widget>[
-            TextButton(
-              onPressed: () async {
-                final pickedVideo = await _picker.pickVideo(source: ImageSource.gallery);
-                Navigator.of(context).pop(File(pickedVideo!.path));
-              },
-              child: Text("Video"),
-            ),
+            // TextButton(
+            //   onPressed: () async {
+            //     final pickedVideo = await _picker.pickVideo(source: ImageSource.gallery);
+            //     Navigator.of(context).pop(File(pickedVideo!.path));
+            //   },
+            //   child: Text("Video"),
+            // ),
             TextButton(
               onPressed: () async {
                 final pickedImage = await _picker.pickImage(source: ImageSource.gallery);

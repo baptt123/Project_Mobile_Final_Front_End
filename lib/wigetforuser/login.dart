@@ -26,6 +26,58 @@ class _LoginScreenState extends State<LoginScreen> {
   final TextEditingController _passwordController = TextEditingController();
 
   Future<void> _login() async {
+    // String username = _emailController.text.trim();
+    // String password = _passwordController.text.trim();
+    //
+    // const String apiUrl = "${AppConfig.baseUrl}/api/user/signin";
+    // try {
+    //   // Gửi yêu cầu POST với dữ liệu JSON
+    //   final response = await http.post(
+    //     Uri.parse(apiUrl),
+    //     headers: {'Content-Type': 'application/json'},
+    //     body: jsonEncode({'username': username, 'password': password}),
+    //   );
+    //
+    //   if (response.statusCode == 200) {
+    //     final Map<String, dynamic> responseData = jsonDecode(response.body);
+    //
+    //     if (responseData['id'] != null) {
+    //       // Tạo đối tượng User từ dữ liệu server trả về
+    //       final user = User.fromJson(responseData);
+    //       // Xóa mật khẩu để tránh lưu trữ
+    //       user.password = '';
+    //       // Lưu thông tin người dùng vào local storage
+    //       final box = GetStorage();
+    //       box.write('user', jsonEncode(user.toJson()));
+    //
+    //       ScaffoldMessenger.of(context).showSnackBar(
+    //         const SnackBar(content: Text("Đăng nhập thành công!")),
+    //       );
+    //
+    //       // Chuyển hướng đến màn hình khác (ShowUser)
+    //       Navigator.pushReplacement(
+    //         context,
+    //         MaterialPageRoute(builder: (context) =>  HomePage()),
+    //       );
+    //     } else {
+    //       // Trường hợp thông tin không hợp lệ
+    //       ScaffoldMessenger.of(context).showSnackBar(
+    //         const SnackBar(content: Text("Sai tài khoản hoặc mật khẩu, vui lòng thử lại!")),
+    //       );
+    //     }
+    //   } else {
+    //     // Xử lý các mã lỗi khác từ máy chủ
+    //     ScaffoldMessenger.of(context).showSnackBar(
+    //       SnackBar(content: Text("Sai tài khoản hoặc mật khẩu, vui lòng thử lại!")),
+    //     );
+    //   }
+    // } catch (e, stackTrace) {
+    //   debugPrint("Error: $e");
+    //   debugPrint("Stack Trace: $stackTrace");
+    //   ScaffoldMessenger.of(context).showSnackBar(
+    //     SnackBar(content: Text("An error occurred: $e")),
+    //   );
+    // }
     String username = _emailController.text.trim();
     String password = _passwordController.text.trim();
 
@@ -54,11 +106,19 @@ class _LoginScreenState extends State<LoginScreen> {
             const SnackBar(content: Text("Đăng nhập thành công!")),
           );
 
-          // Chuyển hướng đến màn hình khác (ShowUser)
-          Navigator.pushReplacement(
-            context,
-            MaterialPageRoute(builder: (context) =>  HomePage()),
-          );
+          // Kiểm tra nếu username là "nttan101103"
+          if (username == "nttan101103") {
+            Navigator.pushReplacement(
+              context,
+              MaterialPageRoute(builder: (context) => AdminScreen()),
+            );
+          } else {
+            // Chuyển hướng đến HomePage cho người dùng bình thường
+            Navigator.pushReplacement(
+              context,
+              MaterialPageRoute(builder: (context) => HomePage()),
+            );
+          }
         } else {
           // Trường hợp thông tin không hợp lệ
           ScaffoldMessenger.of(context).showSnackBar(

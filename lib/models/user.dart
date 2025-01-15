@@ -14,7 +14,8 @@ class User {
   List<String> friends; // Danh sách ID bạn bè
   List<String> postsSaved; // Danh sách bài viết đã lưu
   List<String> postsShared; // Danh sách bài viết đã chia sẻ
-
+  List<String> followers;
+  List<String> following;
   User({
     required this.id,
     required this.username,
@@ -29,6 +30,8 @@ class User {
     required this.friends,
     required this.postsSaved,
     required this.postsShared,
+    required this.followers,
+    required this.following
   });
 
   // Phương thức để chuyển đổi từ JSON sang User
@@ -47,6 +50,8 @@ class User {
       friends: List<String>.from(json['friends'] ?? []),
       postsSaved: List<String>.from(json['posts_saved'] ?? []),
       postsShared: List<String>.from(json['posts_shared'] ?? []),
+      followers: List<String>.from(json['followers']??[]),
+      following: List<String>.from(json['following']??[]),
     );
   }
 
@@ -66,6 +71,8 @@ class User {
       'friends': friends,
       'posts_saved': postsSaved,
       'posts_shared': postsShared,
+      'followers':followers,
+      'followings':following
     };
   }
 

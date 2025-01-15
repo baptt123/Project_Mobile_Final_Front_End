@@ -18,6 +18,8 @@ class CallingAPI {
       'http://192.168.15.62:8080/api/story/getstories';
   static const String notificationURL =
       'http://192.168.15.62:8080/api/notification/get-notification';
+  static const String likeURL =
+      'http://192.168.67.100:8080/api/post/get/takeLike/{id}';
   static String messagesURL =
       'http://192.168.15.62:8080/api/messages/getmessages';
   // static const String commentURL =
@@ -242,4 +244,28 @@ class CallingAPI {
       throw Exception('Failed to load posts');
     }
   }
+  // Hàm gọi API Like
+  Future<Map<String, dynamic>> updatePost(
+      String postId, {
+        bool? isLike,
+        bool? isSaved,
+      }) async {
+    // Endpoint API
+    final response = await http.put(
+      Uri.parse('$likeURL/$postId'), // `$likeURL` là URL endpoint
+      headers: {'Content-Type': 'application/json'},
+      body: json.encode({
+        // Nếu `isLike` hoặc `isSaved` không null, truyền giá trị vào body
+        'isLike': isLike != null ? (isLike ? 1 : 0) : null,
+      }),
+    );
+
+    // Kiểm tra mã trạng thái
+    if (response.statusCode == 200) {
+      return json.decode(response.body); // Trả về dữ liệu từ API
+    } else {
+      throw Exception('Failed to update post'); // Ném lỗi nếu API thất bại
+    }
+  }
+
 }
