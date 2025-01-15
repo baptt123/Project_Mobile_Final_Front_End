@@ -197,7 +197,7 @@ class _HomePageState extends State<HomePage> {
   void initState() {
     super.initState();
     _pageController = PageController(initialPage: _pageIndex);
-    _initializeSSEListeners();
+    // _initializeSSEListeners();
   }
 
   @override
@@ -206,63 +206,63 @@ class _HomePageState extends State<HomePage> {
     super.dispose();
   }
 
-  void _initializeSSEListeners() {
-    _startListeningForNotifications();
-    _startListeningForStoryUploads();
-    _startListeningForLikes();
-    _startListeningForComments();
-    _startListeningForShares(); // Thêm lắng nghe sự kiện chia sẻ
-  }
+  // void _initializeSSEListeners() {
+  //   // _startListeningForNotifications();
+  //   // _startListeningForStoryUploads();
+  //   // _startListeningForLikes();
+  //   // _startListeningForComments();
+  //   // _startListeningForShares(); // Thêm lắng nghe sự kiện chia sẻ
+  // }
 
-  void _startListeningForNotifications() {
-    _subscribeToSSE('upload', (data) {
-      setState(() => _hasNotification = true);
-    });
-  }
+  // void _startListeningForNotifications() {
+  //   _subscribeToSSE('upload', (data) {
+  //     setState(() => _hasNotification = true);
+  //   });
+  // }
 
-  void _startListeningForStoryUploads() {
-    _subscribeToSSE('story', (data) {
-      setState(() => _hasNewStory = true);
-    });
-  }
+  // void _startListeningForStoryUploads() {
+  //   _subscribeToSSE('story', (data) {
+  //     setState(() => _hasNewStory = true);
+  //   });
+  // }
 
-  void _startListeningForLikes() {
-    _subscribeToSSE('like', (data) {
-      setState(() {
-        _hasNewLike = true;
-        if (data != null) {
-          final likeData = json.decode(data);
-          // Xử lý dữ liệu like ở đây nếu cần
-        }
-      });
-    });
-  }
+  // void _startListeningForLikes() {
+  //   _subscribeToSSE('like', (data) {
+  //     setState(() {
+  //       _hasNewLike = true;
+  //       if (data != null) {
+  //         final likeData = json.decode(data);
+  //         // Xử lý dữ liệu like ở đây nếu cần
+  //       }
+  //     });
+  //   });
+  // }
 
-  void _startListeningForComments() {
-    _subscribeToSSE('comment', (data) {
-      setState(() {
-        _hasNewComment = true;
-        if (data != null) {
-          final commentData = json.decode(data);
-          // Xử lý dữ liệu comment ở đây nếu cần
-        }
-      });
-    });
-  }
+  // void _startListeningForComments() {
+  //   _subscribeToSSE('comment', (data) {
+  //     setState(() {
+  //       _hasNewComment = true;
+  //       if (data != null) {
+  //         final commentData = json.decode(data);
+  //         // Xử lý dữ liệu comment ở đây nếu cần
+  //       }
+  //     });
+  //   });
+  // }
 
   // Thêm phương thức lắng nghe sự kiện chia sẻ
-  void _startListeningForShares() {
-    _subscribeToSSE('share', (data) {
-      setState(() {
-        _hasNewShare = true;
-        if (data != null) {
-          _lastShareInfo = json.decode(data);
-          // Có thể hiển thị thông báo popup hoặc xử lý dữ liệu chia sẻ ở đây
-          _showShareNotification(_lastShareInfo!);
-        }
-      });
-    });
-  }
+  // void _startListeningForShares() {
+  //   _subscribeToSSE('share', (data) {
+  //     setState(() {
+  //       _hasNewShare = true;
+  //       if (data != null) {
+  //         _lastShareInfo = json.decode(data);
+  //         // Có thể hiển thị thông báo popup hoặc xử lý dữ liệu chia sẻ ở đây
+  //         _showShareNotification(_lastShareInfo!);
+  //       }
+  //     });
+  //   });
+  // }
 
   // Hiển thị thông báo popup khi có người chia sẻ bài viết
   void _showShareNotification(Map<String, dynamic> shareInfo) {
@@ -284,19 +284,19 @@ class _HomePageState extends State<HomePage> {
     );
   }
 
-  void _subscribeToSSE(String endpoint, Function(String?) onData) {
-    SSEClient.subscribeToSSE(
-      method: SSERequestType.GET,
-      url: '$_baseUrl/$endpoint',
-      header: _headers,
-    ).listen((event) {
-      if (event.data != null) {
-        onData(event.data);
-      }
-    }, onError: (error) {
-      debugPrint('SSE Error for $endpoint: $error');
-    });
-  }
+  // void _subscribeToSSE(String endpoint, Function(String?) onData) {
+  //   SSEClient.subscribeToSSE(
+  //     method: SSERequestType.GET,
+  //     url: '$_baseUrl/$endpoint',
+  //     header: _headers,
+  //   ).listen((event) {
+  //     if (event.data != null) {
+  //       onData(event.data);
+  //     }
+  //   }, onError: (error) {
+  //     debugPrint('SSE Error for $endpoint: $error');
+  //   });
+  // }
 
   void _resetNotifications() {
     setState(() {
@@ -347,10 +347,10 @@ class _HomePageState extends State<HomePage> {
         const FeedPage(),
 
          NotificationScreenUI(),
-        const ProfileApp(),
-
-        const NotificationsPage(),
         // const ProfileApp(),
+
+        // const NotificationsPage(),
+        const ProfileScreen(),
 
         Createnewpost(),
         Createstory(),

@@ -10,6 +10,7 @@ import 'package:quick_social/wigetforuser/updateinfor.dart';
 
 import '../models/user.dart';
 import '../service/postservice.dart';
+import '../ui/FollowList.dart';
 import 'login.dart';
 
 
@@ -93,6 +94,17 @@ String imagePath ="" ;
               Navigator.pushReplacement(
                 context,
                 MaterialPageRoute(builder: (context) =>  UpdateUserScreen()),
+              );
+            },
+          ),
+          IconButton(
+            icon: const Icon(Icons.group, color: Colors.black),
+            onPressed: () {
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (context) => FollowPageList(currentUserId: currentUser!.id),
+                ),
               );
             },
           ),

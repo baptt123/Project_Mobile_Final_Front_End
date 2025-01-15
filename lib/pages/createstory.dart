@@ -32,16 +32,16 @@ class Createstory extends StatelessWidget {
               return IconButton(
                 icon: const Icon(Icons.arrow_back),
                 onPressed: () {
-                  // Pop the current route if there's a previous route
-                  if (Navigator.canPop(context)) {
-                    Navigator.pop(context);
-                  } else {
-                    // Navigate to home if there's no previous route
-                    Navigator.pushReplacement(
-                      context,
-                      MaterialPageRoute(builder: (context) => HomePage()),
-                    );
-                  }
+                  // // Pop the current route if there's a previous route
+                  // if (Navigator.canPop(context)) {
+                  //   Navigator.pop(context);
+                  // } else {
+                  //   // Navigate to home if there's no previous route
+                  //   Navigator.pushReplacement(
+                  //     context,
+                  //     MaterialPageRoute(builder: (context) => HomePage()),
+                  //   );
+                  // }
                 },
               );
             },
