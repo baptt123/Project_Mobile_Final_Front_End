@@ -7,7 +7,9 @@ import '../dto/postdto.dart';
 import '../dto/storydto.dart';
 import '../dto/userdto.dart';
 import '../model/friend.dart';
+import '../models/post.dart';
 import '../models/story.dart';
+import '../models/user.dart';
 
 class CallingAPI {
   static const String postURL =
@@ -18,17 +20,9 @@ class CallingAPI {
       'http://192.168.15.62:8080/api/notification/get-notification';
   static String messagesURL =
       'http://192.168.15.62:8080/api/messages/getmessages';
+  // static const String commentURL =
+  //     'http://192.168.1.95:8080/api/post/get/{postId}/comments}';
 
-  static Future<List<PostDTO>> fetchPosts() async {
-    final response = await http.get(Uri.parse('${AppConfig.baseUrl}'+'${AppConfig.postURL}'));
-
-    if (response.statusCode == 200) {
-      final List<dynamic> data = json.decode(response.body);
-      return data.map((json) => PostDTO.fromJson(json)).toList();
-    } else {
-      throw Exception('Failed to load posts');
-    }
-  }
 
   // Phương thức GET: Lấy danh sách StoryDTO
   static Future<List<Story>> fetchStories() async {
@@ -205,6 +199,47 @@ class CallingAPI {
       }
     } catch (e) {
       throw Exception("Error fetching following: $e");
+    }
+  }
+  // api gọi addComment
+  Future<void> submitComment({
+    required User user ,
+    required String postId,
+    required String id,
+    required String fullname,
+    required String text,
+  }) async {
+    try {
+      final url = Uri.parse('http://192.168.1.95:8080/api/post/get/$postId/comments');
+      final response = await http.post(
+        url,
+        headers: {'Content-Type': 'application/json'},
+        body: jsonEncode({
+          'id': id,
+          'fullname': User,
+          'text': text,
+        }),
+      );
+
+      if (response.statusCode == 200) {
+        print('Comment added successfully!');
+      } else {
+        throw Exception('Failed to add comment: ${response.body}');
+      }
+    } catch (e) {
+      print('Error while adding comment: $e');
+      rethrow; // Ném lỗi lại để xử lý ở nơi gọi hàm
+    }
+  }
+  static Future<List<Post>> fetchPosts() async {
+    final response = await http.get(
+        Uri.parse('${AppConfig.baseUrl}' + '${AppConfig.postURL}'));
+
+    if (response.statusCode == 200) {
+      final List<dynamic> data = json.decode(response.body);
+      return data.map((json) => Post.fromJson(json)).toList();
+    } else {
+      throw Exception('Failed to load posts');
     }
   }
 }

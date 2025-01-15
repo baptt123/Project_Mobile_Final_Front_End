@@ -18,7 +18,9 @@ import 'login.dart';
 // }
 
 class ProfileApp extends StatelessWidget {
-  const ProfileApp({super.key});
+  final String userId;
+  const ProfileApp({required this.userId, Key? key}) : super(key: key);
+  // const ProfileApp({super.key});
 
   @override
   Widget build(BuildContext context) {

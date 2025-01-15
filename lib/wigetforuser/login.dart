@@ -2,6 +2,7 @@ import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:get_storage/get_storage.dart';
 import 'package:http/http.dart' as http;
+import 'package:quick_social/pages/admin.dart';
 import 'package:quick_social/pages/home_page.dart';
 import 'package:quick_social/wigetforuser/forgotpassword.dart';
 import 'package:quick_social/wigetforuser/profile.dart';

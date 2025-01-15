@@ -345,8 +345,13 @@ class _HomePageState extends State<HomePage> {
       physics: const NeverScrollableScrollPhysics(),
       children: [
         const FeedPage(),
+
          NotificationScreenUI(),
         const ProfileApp(),
+
+        const NotificationsPage(),
+        // const ProfileApp(),
+
         Createnewpost(),
         Createstory(),
       ],

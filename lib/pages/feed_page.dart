@@ -165,9 +165,9 @@
 //
 import 'package:flutter/material.dart';
 import 'package:quick_social/api/callingapi.dart';
+import 'package:quick_social/models/story.dart';
 import 'package:story/story_page_view.dart'; // Thư viện story
-import '../dto/postdto.dart';
-import '../models/story.dart';
+import '../models/post.dart';
 import '../widgets/post_card.dart';
 import '../widgets/layout/responsive_padding.dart';
 
@@ -180,7 +180,7 @@ class FeedPage extends StatefulWidget {
 
 class _FeedPageState extends State<FeedPage> {
   List<Story> _stories = []; // Danh sách stories
-  List<PostDTO> _posts = []; // Danh sách posts
+  List<Post> _posts = []; // Danh sách posts
   bool _isLoadingStories = true; // Trạng thái loading stories
   bool _isLoadingPosts = true; // Trạng thái loading posts
   String? _errorStories; // Lỗi story
@@ -231,61 +231,71 @@ class _FeedPageState extends State<FeedPage> {
 
     return Scaffold(
       appBar: _appBar(theme),
-      body: ResponsivePadding(
-        child: ListView(
-          children: [
-            // Story Section
-            SizedBox(
-              height: 110,
-              child: _isLoadingStories
-                  ? const Center(child: CircularProgressIndicator()) // Loading
-                  : _errorStories != null
-                  ? Center(child: Text(_errorStories!)) // Lỗi
-                  : ListView.builder(
-                scrollDirection: Axis.horizontal,
-                itemCount: _stories.length,
-                itemBuilder: (_, index) {
-                  final story = _stories[index];
-                  return GestureDetector(
-                    onTap: () => _openStoryView(context, index),
-                    child: Column(
-                      children: [
-                        CircleAvatar(
-                          radius: 40,
-                          backgroundImage: story.imageStory.isNotEmpty
-                              ? NetworkImage(story.imageStory)
-                              : const AssetImage('assets/img/post.jpg') as ImageProvider,
-                        ),
-                        const SizedBox(height: 8),
-                        Text(
-                          story.fullName ?? 'Vô danh',
-                          style: const TextStyle(
-                            color: Colors.white,
-                            fontSize: 12,
+      body: RefreshIndicator(
+        onRefresh: () async {
+          await _fetchStories();
+          await _fetchPosts();
+        },
+        child: ResponsivePadding(
+          child: ListView(
+            children: [
+              // Story Section
+              SizedBox(
+                height: 110,
+                child: _isLoadingStories
+                    ? const Center(child: CircularProgressIndicator()) // Loading
+                    : _errorStories != null
+                    ? Center(child: Text(_errorStories!)) // Lỗi
+                    : _stories.isEmpty
+                    ? const Center(child: Text('No stories available'))
+                    : ListView.builder(
+                  scrollDirection: Axis.horizontal,
+                  itemCount: _stories.length,
+                  itemBuilder: (_, index) {
+                    final Story story = _stories[index];
+                    return GestureDetector(
+                      onTap: () => _openStoryView(context, index),
+                      child: Column(
+                        children: [
+                          CircleAvatar(
+                            radius: 40,
+                            backgroundImage: story.imageStory.isNotEmpty
+                                ? NetworkImage(story.imageStory)
+                                : const AssetImage('assets/img/post.jpg') as ImageProvider,
                           ),
-                        ),
-                      ],
-                    ),
-                  );
-                },
+                          const SizedBox(height: 8),
+                          Text(
+                            story.fullName ?? 'Vô danh',
+                            style: const TextStyle(
+                              color: Colors.white,
+                              fontSize: 12,
+                            ),
+                          ),
+                        ],
+                      ),
+                    );
+                  },
+                ),
               ),
-            ),
-            // Post Section
-            _isLoadingPosts
-                ? const Center(child: CircularProgressIndicator())
-                : _errorPosts != null
-                ? Center(child: Text(_errorPosts!))
-                : ListView.separated(
-              itemCount: _posts.length,
-              physics: const NeverScrollableScrollPhysics(),
-              shrinkWrap: true,
-              separatorBuilder: (_, index) => const Padding(
-                padding: EdgeInsets.symmetric(horizontal: 16),
-                child: Divider(height: 4),
+              // Post Section
+              _isLoadingPosts
+                  ? const Center(child: CircularProgressIndicator())
+                  : _errorPosts != null
+                  ? Center(child: Text(_errorPosts!))
+                  : _posts.isEmpty
+                  ? const Center(child: Text('No posts available'))
+                  : ListView.separated(
+                itemCount: _posts.length,
+                physics: const NeverScrollableScrollPhysics(),
+                shrinkWrap: true,
+                separatorBuilder: (_, index) => const Padding(
+                  padding: EdgeInsets.symmetric(horizontal: 16),
+                  child: Divider(height: 4),
+                ),
+                itemBuilder: (_, index) => PostCard(post: _posts[index]),
               ),
-              itemBuilder: (_, index) => PostCard(post: _posts[index]),
-            ),
-          ],
+            ],
+          ),
         ),
       ),
     );

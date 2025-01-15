@@ -1,12 +1,311 @@
-import 'dart:convert';
+// import 'dart:convert';
+//
+// import 'package:flutter/cupertino.dart';
+// import 'package:flutter/material.dart';
+// import 'package:get_storage/get_storage.dart';
+// import 'package:quick_social/config/AppConfig.dart';
+// import 'package:web_socket_channel/io.dart';
+// import 'package:web_socket_channel/web_socket_channel.dart';
+//
+// import '../api/callingapi.dart';
+// import '../models/message.dart';
+// import '../models/user.dart';
+//
+// class ChatScreen extends StatefulWidget {
+//   @override
+//   _ChatScreenState createState() => _ChatScreenState();
+// }
+//
+// class _ChatScreenState extends State<ChatScreen> {
+//   User? currentUser; // Biến để lưu thông tin người dùng
+//   String? fullName;
+//
+//   @override
+//   void initState() {
+//     super.initState();
+//     _loadUser();
+//     _initializeChat();
+//   }
+//
+//   // Hàm để lấy thông tin người dùng từ GetStorage
+//   Future<void> _loadUser() async {
+//     final box = GetStorage();
+//     String? userJsonString = box.read('user');
+//     if (userJsonString != null) {
+//       // Giải mã JSON thành đối tượng User
+//       Map<String, dynamic> userJson = jsonDecode(userJsonString);
+//       // setState(() {
+//       //   currentUser = User.fromJson(userJson);
+//       //   username = currentUser?.username;
+//       // });
+//       currentUser=User.fromJson(userJson);
+//       fullName=currentUser?.fullName;
+//     }
+//   }
+//
+//   final TextEditingController _controller = TextEditingController();
+//   late WebSocketChannel _channel;
+//   final ScrollController _scrollController = ScrollController();
+//   List<Map<String, dynamic>> messages = [];
+//   bool isLoading = true;
+//
+//   Future<void> _initializeChat() async {
+//     try {
+//       await _fetchMessages();
+//       _connectWebSocket();
+//     } catch (error) {
+//       print('Error initializing chat: $error');
+//     } finally {
+//       setState(() {
+//         isLoading = false;
+//       });
+//     }
+//   }
+//
+//   void _connectWebSocket() {
+//     _channel = IOWebSocketChannel.connect(
+//         'ws://192.168.1.90:8080/chat?username=${fullName}');
+//
+//     _channel.stream.listen(
+//       (data) {
+//         final decodedMessage = json.decode(data);
+//         setState(() {
+//           messages.add({
+//             'id': decodedMessage['id'],
+//             'fullNameSender': decodedMessage['fullNameSender'],
+//             'text': decodedMessage['message'],
+//             'sendingDate': DateTime.parse(decodedMessage['sendingDate']),
+//           });
+//
+//           WidgetsBinding.instance.addPostFrameCallback((_) {
+//             _scrollToBottom();
+//           });
+//         });
+//       },
+//       onError: (error) {
+//         print('WebSocket error: $error');
+//         // Có thể thêm xử lý hiển thị thông báo lỗi cho người dùng
+//       },
+//     );
+//   }
+//
+//   void _scrollToBottom() {
+//     if (_scrollController.hasClients) {
+//       _scrollController.animateTo(
+//         _scrollController.position.maxScrollExtent,
+//         duration: Duration(milliseconds: 300),
+//         curve: Curves.easeOut,
+//       );
+//     }
+//   }
+//
+//   Future<void> _fetchMessages() async {
+//     try {
+//       final fetchedMessages =
+//           await CallingAPI.fetchMessages(fullName!, 'userNameReceiver');
+//
+//       setState(() {
+//         messages.clear(); // Làm mới lại danh sách tin nhắn
+//         if (fetchedMessages.isNotEmpty) {
+//           messages.addAll(
+//               fetchedMessages); // Nếu có tin nhắn thì thêm vào danh sách
+//         } else {
+//           // Trường hợp không có tin nhắn (mảng rỗng)
+//           print('Chưa có tin nhắn nào');
+//         }
+//       });
+//     } catch (error) {
+//       print('Error fetching messages: $error');
+//     }
+//   }
+//
+//   Future<void> _sendMessage() async {
+//     if (_controller.text.isNotEmpty) {
+//       try {
+//         final message = Messages(
+//           id: DateTime.now().millisecondsSinceEpoch.toString(),
+//           message: _controller.text,
+//           sendingDate: DateTime.now(),
+//           fullNameSender: fullName??'',
+//           fullNameReceiver: 'userNameReceiver',
+//         );
+//
+//         _channel.sink.add(json.encode(message.toJson()));
+//         setState(() {
+//           messages.add({
+//             'id': message.id,
+//             'fullNameSender': message.fullNameSender,
+//             'text': message.message,
+//             'sendingDate': message.sendingDate,
+//           });
+//
+//           WidgetsBinding.instance.addPostFrameCallback((_) {
+//             _scrollToBottom();
+//           });
+//         });
+//         _controller.clear();
+//       } catch (e) {
+//         print('Error sending message: $e');
+//         // Có thể thêm thông báo lỗi cho người dùng
+//       }
+//     }
+//   }
+//
+//   Widget _buildEmptyState() {
+//     return Center(
+//       child: Column(
+//         mainAxisAlignment: MainAxisAlignment.center,
+//         children: [
+//           Icon(
+//             Icons.chat_bubble_outline,
+//             size: 64,
+//             color: Colors.grey,
+//           ),
+//           SizedBox(height: 16),
+//           Text(
+//             'Chưa có tin nhắn nào',
+//             style: TextStyle(
+//               fontSize: 18,
+//               color: Colors.grey,
+//             ),
+//           ),
+//           SizedBox(height: 8),
+//           Text(
+//             'Hãy bắt đầu cuộc trò chuyện!',
+//             style: TextStyle(
+//               fontSize: 14,
+//               color: Colors.grey[600],
+//             ),
+//           ),
+//         ],
+//       ),
+//     );
+//   }
+//
+//   Widget _buildMessageBubble(Map<String, dynamic> message) {
+//     return Align(
+//       alignment: Alignment.centerLeft,
+//       child: Padding(
+//         padding: const EdgeInsets.symmetric(
+//           vertical: 5.0,
+//           horizontal: 10.0,
+//         ),
+//         child: Container(
+//           padding: const EdgeInsets.all(10.0),
+//           decoration: BoxDecoration(
+//             color: Colors.grey[800],
+//             borderRadius: BorderRadius.circular(10.0),
+//           ),
+//           child: Column(
+//             crossAxisAlignment: CrossAxisAlignment.start,
+//             children: [
+//               Text(
+//                 "User: ${message['fullNameSender']}",
+//                 style: TextStyle(
+//                   fontWeight: FontWeight.bold,
+//                   color: Colors.white70,
+//                 ),
+//               ),
+//               SizedBox(height: 5.0),
+//               Text(
+//                 message['text'],
+//                 style: TextStyle(
+//                   color: Colors.white,
+//                 ),
+//               ),
+//               SizedBox(height: 5.0),
+//               Text(
+//                 "${message['sendingDate']}",
+//                 style: TextStyle(
+//                   fontSize: 12,
+//                   color: Colors.white54,
+//                 ),
+//               ),
+//             ],
+//           ),
+//         ),
+//       ),
+//     );
+//   }
+//
+//   Widget _buildMessageInput() {
+//     return Padding(
+//       padding: const EdgeInsets.all(8.0),
+//       child: Row(
+//         children: [
+//           Expanded(
+//             child: TextField(
+//               controller: _controller,
+//               decoration: InputDecoration(
+//                 hintText: 'Nhập tin nhắn...',
+//                 border: OutlineInputBorder(
+//                   borderRadius: BorderRadius.circular(20.0),
+//                 ),
+//               ),
+//               onSubmitted: (_) => _sendMessage(),
+//             ),
+//           ),
+//           SizedBox(width: 10),
+//           IconButton(
+//             icon: Icon(Icons.send),
+//             onPressed: _sendMessage,
+//           ),
+//         ],
+//       ),
+//     );
+//   }
+//
+//   @override
+//   Widget build(BuildContext context) {
+//     return Scaffold(
+//       appBar: AppBar(
+//         title: Text('💬 chém-gió'),
+//         actions: [
+//           IconButton(
+//             icon: Icon(Icons.refresh),
+//             onPressed: _fetchMessages,
+//           ),
+//         ],
+//       ),
+//       body: Column(
+//         children: [
+//           Expanded(
+//             child: isLoading
+//                 ? Center(child: CircularProgressIndicator())
+//                 : messages.isEmpty
+//                     ? _buildEmptyState() // Hiển thị trạng thái rỗng nếu không có tin nhắn
+//                     : ListView.builder(
+//                         controller: _scrollController,
+//                         reverse: false,
+//                         itemCount: messages.length,
+//                         itemBuilder: (context, index) {
+//                           return _buildMessageBubble(messages[index]);
+//                         },
+//                       ),
+//           ),
+//           Divider(height: 1),
+//           _buildMessageInput(),
+//         ],
+//       ),
+//     );
+//   }
+//
+//   @override
+//   void dispose() {
+//     _controller.dispose();
+//     _scrollController.dispose();
+//     _channel.sink.close();
+//     super.dispose();
+//   }
+// }
 
+
+import 'dart:convert';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:get_storage/get_storage.dart';
-import 'package:quick_social/config/AppConfig.dart';
 import 'package:web_socket_channel/io.dart';
 import 'package:web_socket_channel/web_socket_channel.dart';
-
 import '../api/callingapi.dart';
 import '../models/message.dart';
 import '../models/user.dart';
@@ -17,42 +316,46 @@ class ChatScreen extends StatefulWidget {
 }
 
 class _ChatScreenState extends State<ChatScreen> {
-  User? currentUser; // Biến để lưu thông tin người dùng
-  String? fullName;
-
-  @override
-  void initState() {
-    super.initState();
-    _loadUser();
-    _initializeChat();
-  }
-
-  // Hàm để lấy thông tin người dùng từ GetStorage
-  Future<void> _loadUser() async {
-    final box = GetStorage();
-    String? userJsonString = box.read('user');
-    if (userJsonString != null) {
-      // Giải mã JSON thành đối tượng User
-      Map<String, dynamic> userJson = jsonDecode(userJsonString);
-      // setState(() {
-      //   currentUser = User.fromJson(userJson);
-      //   username = currentUser?.username;
-      // });
-      currentUser=User.fromJson(userJson);
-      fullName=currentUser?.fullName;
-    }
-  }
-
+  User? currentUser; // Thông tin người dùng hiện tại
+  String? fullNameReceiver; // Tên đầy đủ của người nhận
   final TextEditingController _controller = TextEditingController();
   late WebSocketChannel _channel;
   final ScrollController _scrollController = ScrollController();
   List<Map<String, dynamic>> messages = [];
   bool isLoading = true;
 
+  @override
+  void initState() {
+    super.initState();
+    _loadUserData();
+    _initializeChat();
+  }
+
+  /// Lấy thông tin người dùng hiện tại và người nhận từ GetStorage
+  Future<void> _loadUserData() async {
+    final box = GetStorage();
+
+    // Lấy thông tin người dùng hiện tại
+    String? userJsonString = box.read('user');
+    if (userJsonString != null) {
+      Map<String, dynamic> userJson = jsonDecode(userJsonString);
+      currentUser = User.fromJson(userJson);
+    }
+
+    // Lấy thông tin người nhận từ GetStorage
+    Map<String, dynamic>? selectedUser = box.read('selectedUser');
+    if (selectedUser != null) {
+      setState(() {
+        fullNameReceiver = selectedUser['fullName']; // Lưu tên đầy đủ của người nhận
+      });
+    }
+  }
+
+  /// Khởi tạo WebSocket và tải tin nhắn
   Future<void> _initializeChat() async {
     try {
-      await _fetchMessages();
-      _connectWebSocket();
+      await _fetchMessages(); // Lấy tin nhắn từ API
+      _connectWebSocket();   // Kết nối WebSocket
     } catch (error) {
       print('Error initializing chat: $error');
     } finally {
@@ -62,12 +365,13 @@ class _ChatScreenState extends State<ChatScreen> {
     }
   }
 
+  /// Kết nối WebSocket
   void _connectWebSocket() {
     _channel = IOWebSocketChannel.connect(
-        'ws://192.168.1.90:8080/chat?username=${fullName}');
+        'ws://192.168.1.90:8080/chat?username=${currentUser?.fullName}');
 
     _channel.stream.listen(
-      (data) {
+          (data) {
         final decodedMessage = json.decode(data);
         setState(() {
           messages.add({
@@ -84,34 +388,20 @@ class _ChatScreenState extends State<ChatScreen> {
       },
       onError: (error) {
         print('WebSocket error: $error');
-        // Có thể thêm xử lý hiển thị thông báo lỗi cho người dùng
       },
     );
   }
 
-  void _scrollToBottom() {
-    if (_scrollController.hasClients) {
-      _scrollController.animateTo(
-        _scrollController.position.maxScrollExtent,
-        duration: Duration(milliseconds: 300),
-        curve: Curves.easeOut,
-      );
-    }
-  }
-
+  /// Lấy danh sách tin nhắn từ API
   Future<void> _fetchMessages() async {
     try {
-      final fetchedMessages =
-          await CallingAPI.fetchMessages(fullName!, 'userNameReceiver');
+      final fetchedMessages = await CallingAPI.fetchMessages(
+          currentUser?.fullName ?? '', fullNameReceiver ?? '');
 
       setState(() {
-        messages.clear(); // Làm mới lại danh sách tin nhắn
+        messages.clear(); // Làm mới danh sách tin nhắn
         if (fetchedMessages.isNotEmpty) {
-          messages.addAll(
-              fetchedMessages); // Nếu có tin nhắn thì thêm vào danh sách
-        } else {
-          // Trường hợp không có tin nhắn (mảng rỗng)
-          print('Chưa có tin nhắn nào');
+          messages.addAll(fetchedMessages);
         }
       });
     } catch (error) {
@@ -119,6 +409,7 @@ class _ChatScreenState extends State<ChatScreen> {
     }
   }
 
+  /// Gửi tin nhắn qua WebSocket
   Future<void> _sendMessage() async {
     if (_controller.text.isNotEmpty) {
       try {
@@ -126,8 +417,8 @@ class _ChatScreenState extends State<ChatScreen> {
           id: DateTime.now().millisecondsSinceEpoch.toString(),
           message: _controller.text,
           sendingDate: DateTime.now(),
-          fullNameSender: fullName??'',
-          fullNameReceiver: 'userNameReceiver',
+          fullNameSender: currentUser?.fullName ?? '',
+          fullNameReceiver: fullNameReceiver ?? '',
         );
 
         _channel.sink.add(json.encode(message.toJson()));
@@ -146,61 +437,42 @@ class _ChatScreenState extends State<ChatScreen> {
         _controller.clear();
       } catch (e) {
         print('Error sending message: $e');
-        // Có thể thêm thông báo lỗi cho người dùng
       }
     }
   }
 
-  Widget _buildEmptyState() {
-    return Center(
-      child: Column(
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: [
-          Icon(
-            Icons.chat_bubble_outline,
-            size: 64,
-            color: Colors.grey,
-          ),
-          SizedBox(height: 16),
-          Text(
-            'Chưa có tin nhắn nào',
-            style: TextStyle(
-              fontSize: 18,
-              color: Colors.grey,
-            ),
-          ),
-          SizedBox(height: 8),
-          Text(
-            'Hãy bắt đầu cuộc trò chuyện!',
-            style: TextStyle(
-              fontSize: 14,
-              color: Colors.grey[600],
-            ),
-          ),
-        ],
-      ),
-    );
+  /// Cuộn xuống cuối danh sách tin nhắn
+  void _scrollToBottom() {
+    if (_scrollController.hasClients) {
+      _scrollController.animateTo(
+        _scrollController.position.maxScrollExtent,
+        duration: Duration(milliseconds: 300),
+        curve: Curves.easeOut,
+      );
+    }
   }
 
+  /// Giao diện hiển thị tin nhắn
   Widget _buildMessageBubble(Map<String, dynamic> message) {
     return Align(
-      alignment: Alignment.centerLeft,
+      alignment: message['fullNameSender'] == currentUser?.fullName
+          ? Alignment.centerRight
+          : Alignment.centerLeft,
       child: Padding(
-        padding: const EdgeInsets.symmetric(
-          vertical: 5.0,
-          horizontal: 10.0,
-        ),
+        padding: const EdgeInsets.symmetric(vertical: 5.0, horizontal: 10.0),
         child: Container(
           padding: const EdgeInsets.all(10.0),
           decoration: BoxDecoration(
-            color: Colors.grey[800],
+            color: message['fullNameSender'] == currentUser?.fullName
+                ? Colors.blue[400]
+                : Colors.grey[800],
             borderRadius: BorderRadius.circular(10.0),
           ),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Text(
-                "User: ${message['fullNameSender']}",
+                message['fullNameSender'] ?? '',
                 style: TextStyle(
                   fontWeight: FontWeight.bold,
                   color: Colors.white70,
@@ -208,7 +480,7 @@ class _ChatScreenState extends State<ChatScreen> {
               ),
               SizedBox(height: 5.0),
               Text(
-                message['text'],
+                message['text'] ?? '',
                 style: TextStyle(
                   color: Colors.white,
                 ),
@@ -228,6 +500,7 @@ class _ChatScreenState extends State<ChatScreen> {
     );
   }
 
+  /// Giao diện nhập tin nhắn
   Widget _buildMessageInput() {
     return Padding(
       padding: const EdgeInsets.all(8.0),
@@ -259,7 +532,7 @@ class _ChatScreenState extends State<ChatScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text('💬 chém-gió'),
+        title: Text('💬 Chat với $fullNameReceiver'),
         actions: [
           IconButton(
             icon: Icon(Icons.refresh),
@@ -273,15 +546,16 @@ class _ChatScreenState extends State<ChatScreen> {
             child: isLoading
                 ? Center(child: CircularProgressIndicator())
                 : messages.isEmpty
-                    ? _buildEmptyState() // Hiển thị trạng thái rỗng nếu không có tin nhắn
-                    : ListView.builder(
-                        controller: _scrollController,
-                        reverse: false,
-                        itemCount: messages.length,
-                        itemBuilder: (context, index) {
-                          return _buildMessageBubble(messages[index]);
-                        },
-                      ),
+                ? Center(
+              child: Text('Chưa có tin nhắn nào'),
+            )
+                : ListView.builder(
+              controller: _scrollController,
+              itemCount: messages.length,
+              itemBuilder: (context, index) {
+                return _buildMessageBubble(messages[index]);
+              },
+            ),
           ),
           Divider(height: 1),
           _buildMessageInput(),
