@@ -19,12 +19,13 @@ class CallingAPI {
   static const String notificationURL =
       'http://192.168.15.62:8080/api/notification/get-notification';
   static const String likeURL =
-      'http://192.168.67.100:8080/api/post/get/takeLike/{id}';
+      'http://192.168.54.153:8080/api/post/get/takeLike/{id}';
   static String messagesURL =
       'http://192.168.15.62:8080/api/messages/getmessages';
   // static const String commentURL =
   //     'http://192.168.1.95:8080/api/post/get/{postId}/comments}';
-
+  static const String searchURL =
+      'http://192.168.54.153:8080/api/user/search';
 
   // Phương thức GET: Lấy danh sách StoryDTO
   static Future<List<Story>> fetchStories() async {
@@ -268,4 +269,24 @@ class CallingAPI {
     }
   }
 
+
+// Tìm kiếm người dùng
+  static Future<List<User>> fetchSearchUsers(String query,
+      {String? excludeUserId}) async {
+    final Uri uri = Uri.parse('$searchURL').replace(queryParameters: {
+      'q': query, // Query parameter đúng với backend
+      if (excludeUserId != null) 'excludeUserId': excludeUserId,
+    });
+
+    final response = await http.get(uri);
+
+    if (response.statusCode == 200) {
+      final List<dynamic> jsonData = json.decode(response.body);
+      return jsonData.map((json) => User.fromJson(json)).toList();
+    } else if (response.statusCode == 404) {
+      return []; // Không tìm thấy người dùng, trả về danh sách rỗng
+    } else {
+      throw Exception('Failed to find users: ${response.statusCode}');
+    }
+  }
 }

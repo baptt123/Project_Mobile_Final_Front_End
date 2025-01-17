@@ -23,7 +23,7 @@ Future<void> submitComment({
   required String text,
 }) async {
   try {
-    final url = Uri.parse('http://192.168.67.100:8080/api/post/get/${postId}/comments');
+    final url = Uri.parse('http://192.168.54.153:8080/api/post/get/${postId}/comments');
     final response = await http.post(
       url,
       headers: {'Content-Type': 'application/json'},
