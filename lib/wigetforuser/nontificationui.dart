@@ -4,7 +4,6 @@ import 'package:flutter/material.dart';
 import 'package:web_socket_channel/web_socket_channel.dart';
 
 import '../config/AppConfig.dart';
-import '../model/notification.dart';
 import '../models/notifications.dart';
 import '../models/user.dart';
 

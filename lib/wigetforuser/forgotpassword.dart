@@ -48,20 +48,6 @@ class _ForgotPasswordScreenState extends State<ForgotPassword> {
           builder: (context) => ConfirmPassWord(email: email),
         ),
       );
-      // if (response.statusCode == 200) {
-      //   final responseData = jsonDecode(response.body);
-      //   if (responseData['status'] == "success") {
-      //
-      //   } else {
-      //     ScaffoldMessenger.of(context).showSnackBar(
-      //       SnackBar(content: Text("Không thể gửi email. Thử lại sau.")),
-      //     );
-      //   }
-      // } else {
-      //   ScaffoldMessenger.of(context).showSnackBar(
-      //     SnackBar(content: Text("Email không tồn tại hoặc lỗi hệ thống")),
-      //   );
-      // }
     } catch (error) {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(content: Text("Đã xảy ra lỗi: $error")),

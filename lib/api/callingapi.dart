@@ -1,36 +1,19 @@
 import 'dart:convert';
 import 'package:http/http.dart' as http;
-import 'package:quick_social/config/AppConfig.dart';
-
+import '../config/AppConfig.dart';
 import '../dto/notificationsdto.dart';
 import '../dto/postdto.dart';
 import '../dto/storydto.dart';
 import '../dto/userdto.dart';
-import '../model/friend.dart';
+import '../models/friend.dart';
 import '../models/post.dart';
 import '../models/story.dart';
 import '../models/user.dart';
 
-class CallingAPI {
-  static const String postURL =
-      'http://192.168.15.62:8080/api/post/getpost'; // URL API
-  static const String storyURL =
-      'http://192.168.15.62:8080/api/story/getstories';
-  static const String notificationURL =
-      'http://192.168.15.62:8080/api/notification/get-notification';
-  static const String likeURL =
-      'http://192.168.54.153:8080/api/post/get/takeLike/{id}';
-  static String messagesURL =
-      'http://192.168.15.62:8080/api/messages/getmessages';
-  // static const String commentURL =
-  //     'http://192.168.1.95:8080/api/post/get/{postId}/comments}';
-  static const String searchURL =
-      'http://192.168.54.153:8080/api/user/search';
-
-  // Phương thức GET: Lấy danh sách StoryDTO
+class CallingAPIService {
+  /// Fetch Stories
   static Future<List<Story>> fetchStories() async {
-    final response = await http.get(Uri.parse('${AppConfig.baseUrl}'+'${AppConfig.storyURL}'));
-
+    final response = await http.get(Uri.parse('${AppConfig.baseUrl}${AppConfig.storyURL}'));
     if (response.statusCode == 200) {
       final List<dynamic> data = json.decode(response.body);
       return data.map((json) => Story.fromJson(json)).toList();
@@ -39,8 +22,9 @@ class CallingAPI {
     }
   }
 
+  /// Fetch Notifications
   static Future<List<NotificationsDTO>> fetchNotifications() async {
-    final response = await http.get(Uri.parse('${AppConfig.baseUrl}'+'${AppConfig.notificationURL}'));
+    final response = await http.get(Uri.parse('${AppConfig.baseUrl}${AppConfig.notificationURL}'));
     if (response.statusCode == 200) {
       final List<dynamic> data = json.decode(response.body);
       return data.map((json) => NotificationsDTO.fromJson(json)).toList();
@@ -49,25 +33,12 @@ class CallingAPI {
     }
   }
 
-  static Future<List<Map<String, dynamic>>> fetchMessages(
-      String fullNameSender, String fullNameReceiver) async {
+  /// Fetch Messages
+  static Future<List<Map<String, dynamic>>> fetchMessages(String sender, String receiver) async {
     try {
-      final response = await http.get(
-        Uri.parse('${AppConfig.baseUrl}'+AppConfig.messageURL+'/'+fullNameSender+'/'+fullNameReceiver)
-        ,
-      );
-
+      final response = await http.get(Uri.parse('${AppConfig.baseUrl}${AppConfig.messageURL}/$sender/$receiver'));
       if (response.statusCode == 200) {
-        if (response.body.isEmpty) {
-          return [];
-        }
-
-        List<dynamic> jsonData = json.decode(response.body);
-
-        if (jsonData.isEmpty) {
-          return [];
-        }
-
+        final List<dynamic> jsonData = json.decode(response.body);
         return jsonData.map((message) => {
           'id': message['id'] ?? '',
           'fullNameSender': message['fullNameSender'] ?? '',
@@ -79,7 +50,6 @@ class CallingAPI {
       } else if (response.statusCode == 204) {
         return [];
       } else {
-        print('Error: Status code ${response.statusCode}');
         return [];
       }
     } catch (e) {
@@ -88,156 +58,122 @@ class CallingAPI {
     }
   }
 
+  /// Admin fetch users
   static Future<List<UserDTO>> fetchUsersAdmin() async {
-    final response =
-    await http.get(Uri.parse(AppConfig.baseUrl + AppConfig.userURL));
-
+    final response = await http.get(Uri.parse('${AppConfig.baseUrl}${AppConfig.userURL}'));
     if (response.statusCode == 200) {
       final List<dynamic> data = json.decode(response.body);
       return data.map((user) => UserDTO.fromJson(user)).toList();
     } else {
-      throw Exception('Failed to fetch users: ${response.statusCode}');
+      throw Exception('Failed to fetch users');
     }
   }
 
+  /// Admin fetch posts
   static Future<List<PostDTO>> fetchPostsAdmin() async {
-    final response =
-    await http.get(Uri.parse(AppConfig.baseUrl + AppConfig.postURL));
+    final response = await http.get(Uri.parse('${AppConfig.baseUrl}${AppConfig.postURL}'));
     if (response.statusCode == 200) {
       final List<dynamic> data = json.decode(response.body);
       return data.map((post) => PostDTO.fromJson(post)).toList();
     } else {
-      throw Exception('Failed to fetch user at admin:${response.statusCode}');
+      throw Exception('Failed to fetch posts');
     }
   }
-  //Phan hien thi goi ý ket ban be
+
+  /// Gợi ý kết bạn
   Future<List<Friend>> fetchSuggestedFriends(String userId) async {
-    //192.168.1.183
-    // final url = Uri.parse('http://192.168.88.234:8080/api/user/suggested-friends/$userId');
     final url = Uri.parse('${AppConfig.friendbaseUrl}/api/user/suggested-friends/$userId');
-
-    try {
-      final response = await http.get(url);
-
-      if (response.statusCode == 200) {
-        // Chuyển đổi dữ liệu JSON từ API thành danh sách các đối tượng Friend
-        final List<dynamic> data = json.decode(response.body);
-        return data.map((json) => Friend.fromJSON(json)).toList();
-      } else {
-        throw Exception("Failed to load suggested friends: ${response.statusCode}");
-      }
-    } catch (e) {
-      throw Exception("Error fetching suggested friends: $e");
+    final response = await http.get(url);
+    if (response.statusCode == 200) {
+      final List<dynamic> data = json.decode(response.body);
+      return data.map((json) => Friend.fromJSON(json)).toList();
+    } else {
+      throw Exception("Failed to load suggested friends");
     }
   }
 
-// Call API follow và unfollow
-//  final String baseUrl = "http://192.168.1.183:8080/api/user";
-  // Follow user
+  /// Follow / Unfollow
   Future<void> followUser(String currentUserId, String targetUserId) async {
-    final url = Uri.parse('${AppConfig.friendbaseUrl}/api/user/${currentUserId}/follow/${targetUserId}');
+    final url = Uri.parse('${AppConfig.friendbaseUrl}/api/user/$currentUserId/follow/$targetUserId');
     final response = await http.post(url);
     if (response.statusCode != 200) {
       throw Exception('Failed to follow user');
     }
   }
 
-  // Unfollow user
   Future<void> unfollowUser(String currentUserId, String targetUserId) async {
-    final url = Uri.parse('${AppConfig.friendbaseUrl}/api/user/${currentUserId}/unfollow/${targetUserId}');
+    final url = Uri.parse('${AppConfig.friendbaseUrl}/api/user/$currentUserId/unfollow/$targetUserId');
     final response = await http.delete(url);
     if (response.statusCode != 200) {
       throw Exception('Failed to unfollow user');
     }
   }
+
   Future<List<Friend>> fetchFollowers(String userId) async {
     final url = Uri.parse('${AppConfig.friendbaseUrl}/api/user/$userId/followers');
-
-    try {
-      final response = await http.get(url);
-
-      if (response.statusCode == 200) {
-        // Chuyển đổi dữ liệu JSON từ API thành danh sách các đối tượng Friend
-        final List<dynamic> data = json.decode(response.body);
-        return data.map((json) => Friend.fromJSON(json)).toList();
-      } else {
-        throw Exception("Failed to load followers: ${response.statusCode}");
-      }
-    } catch (e) {
-      throw Exception("Error fetching followers: $e");
+    final response = await http.get(url);
+    if (response.statusCode == 200) {
+      final List<dynamic> data = json.decode(response.body);
+      return data.map((json) => Friend.fromJSON(json)).toList();
+    } else {
+      throw Exception("Failed to load followers");
     }
   }
-  // Fetch danh sách bạn bè
+
   Future<List<Friend>> fetchFriends(String userId) async {
     final url = Uri.parse('${AppConfig.friendbaseUrl}/api/user/$userId/friends');
-
-    try {
-      final response = await http.get(url);
-
-      if (response.statusCode == 200) {
-        // Chuyển đổi dữ liệu JSON từ API thành danh sách các đối tượng Friend
-        final List<dynamic> data = json.decode(response.body);
-        return data.map((json) => Friend.fromJSON(json)).toList();
-      } else {
-        throw Exception("Failed to load friends: ${response.statusCode}");
-      }
-    } catch (e) {
-      throw Exception("Error fetching friends: $e");
+    final response = await http.get(url);
+    if (response.statusCode == 200) {
+      final List<dynamic> data = json.decode(response.body);
+      return data.map((json) => Friend.fromJSON(json)).toList();
+    } else {
+      throw Exception("Failed to load friends");
     }
   }
 
-// Fetch danh sách người đang theo dõi
   Future<List<Friend>> fetchFollowing(String userId) async {
     final url = Uri.parse('${AppConfig.friendbaseUrl}/api/user/$userId/following');
-
-    try {
-      final response = await http.get(url);
-
-      if (response.statusCode == 200) {
-        // Chuyển đổi dữ liệu JSON từ API thành danh sách các đối tượng Friend
-        final List<dynamic> data = json.decode(response.body);
-        return data.map((json) => Friend.fromJSON(json)).toList();
-      } else {
-        throw Exception("Failed to load following: ${response.statusCode}");
-      }
-    } catch (e) {
-      throw Exception("Error fetching following: $e");
+    final response = await http.get(url);
+    if (response.statusCode == 200) {
+      final List<dynamic> data = json.decode(response.body);
+      return data.map((json) => Friend.fromJSON(json)).toList();
+    } else {
+      throw Exception("Failed to load following");
     }
   }
-  // api gọi addComment
-  Future<void> submitComment({
-    required User user ,
+
+  /// Gửi bình luận
+  static Future<void> submitComment({
     required String postId,
     required String id,
-    required String fullname,
+    required String fullName,
     required String text,
   }) async {
     try {
-      final url = Uri.parse('http://192.168.67.100:8080/api/post/get/$postId/comments');
+      final url = Uri.parse('${AppConfig.commentUrl}/api/post/get/$postId/comments');
       final response = await http.post(
         url,
         headers: {'Content-Type': 'application/json'},
         body: jsonEncode({
           'id': id,
-          'fullname': User,
+          'fullName': fullName,
           'text': text,
         }),
       );
-
       if (response.statusCode == 200) {
-        print('Comment added successfully!');
+        print('✅ Comment added successfully!');
       } else {
-        throw Exception('Failed to add comment: ${response.body}');
+        throw Exception('❌ Failed to add comment: ${response.body}');
       }
     } catch (e) {
-      print('Error while adding comment: $e');
-      rethrow; // Ném lỗi lại để xử lý ở nơi gọi hàm
+      print('⚠️ Error while adding comment: $e');
+      rethrow;
     }
   }
-  static Future<List<Post>> fetchPosts() async {
-    final response = await http.get(
-        Uri.parse('${AppConfig.baseUrl}' + '${AppConfig.postURL}'));
 
+  /// Fetch bài viết
+  static Future<List<Post>> fetchPosts() async {
+    final response = await http.get(Uri.parse('${AppConfig.baseUrl}${AppConfig.postURL}'));
     if (response.statusCode == 200) {
       final List<dynamic> data = json.decode(response.body);
       return data.map((json) => Post.fromJson(json)).toList();
@@ -245,48 +181,75 @@ class CallingAPI {
       throw Exception('Failed to load posts');
     }
   }
-  // Hàm gọi API Like
-  Future<Map<String, dynamic>> updatePost(
-      String postId, {
-        bool? isLike,
-        bool? isSaved,
-      }) async {
-    // Endpoint API
+
+  /// Like bài viết
+  Future<Map<String, dynamic>> updatePost(String postId, {
+    bool? isLike,
+    bool? isSaved,
+  }) async {
+    final url = Uri.parse('${AppConfig.baseUrl}${AppConfig.likeURL}/$postId');
     final response = await http.put(
-      Uri.parse('$likeURL/$postId'), // `$likeURL` là URL endpoint
+      url,
       headers: {'Content-Type': 'application/json'},
       body: json.encode({
-        // Nếu `isLike` hoặc `isSaved` không null, truyền giá trị vào body
         'isLike': isLike != null ? (isLike ? 1 : 0) : null,
       }),
     );
-
-    // Kiểm tra mã trạng thái
     if (response.statusCode == 200) {
-      return json.decode(response.body); // Trả về dữ liệu từ API
+      return json.decode(response.body);
     } else {
-      throw Exception('Failed to update post'); // Ném lỗi nếu API thất bại
+      throw Exception('Failed to update post');
     }
   }
 
-
-// Tìm kiếm người dùng
-  static Future<List<User>> fetchSearchUsers(String query,
-      {String? excludeUserId}) async {
-    final Uri uri = Uri.parse('$searchURL').replace(queryParameters: {
-      'q': query, // Query parameter đúng với backend
+  /// Tìm kiếm người dùng
+  static Future<List<User>> fetchSearchUsers(String query, {String? excludeUserId}) async {
+    final uri = Uri.parse('${AppConfig.baseUrl}${AppConfig.searchURL}').replace(queryParameters: {
+      'q': query,
       if (excludeUserId != null) 'excludeUserId': excludeUserId,
     });
 
     final response = await http.get(uri);
-
     if (response.statusCode == 200) {
       final List<dynamic> jsonData = json.decode(response.body);
       return jsonData.map((json) => User.fromJson(json)).toList();
     } else if (response.statusCode == 404) {
-      return []; // Không tìm thấy người dùng, trả về danh sách rỗng
+      return [];
     } else {
-      throw Exception('Failed to find users: ${response.statusCode}');
+      throw Exception('Failed to search users');
+    }
+  }
+
+  /// CRUD bạn bè (Thêm, Cập nhật, Xoá)
+  static Future<void> addFriend(Map<String, dynamic> friendData) async {
+    final url = Uri.parse('${AppConfig.friendbaseUrl}/api/friend');
+    final response = await http.post(
+      url,
+      headers: {"Content-Type": "application/json"},
+      body: json.encode(friendData),
+    );
+    if (response.statusCode != 200) {
+      throw Exception("Error adding friend: ${response.statusCode}");
+    }
+  }
+
+  static Future<void> updateFriend(String id, Map<String, dynamic> updatedData) async {
+    final url = Uri.parse('${AppConfig.friendbaseUrl}/api/friend/$id');
+    final response = await http.put(
+      url,
+      headers: {"Content-Type": "application/json"},
+      body: json.encode(updatedData),
+    );
+    if (response.statusCode != 200) {
+      throw Exception("Error updating friend: ${response.statusCode}");
+    }
+  }
+
+  static Future<void> deleteFriend(String id) async {
+    final url = Uri.parse('${AppConfig.friendbaseUrl}/api/friend/$id');
+    final response = await http.delete(url);
+    if (response.statusCode != 200) {
+      throw Exception("Error deleting friend: ${response.statusCode}");
     }
   }
 }

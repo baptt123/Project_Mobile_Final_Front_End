@@ -4,44 +4,15 @@ import 'package:flutter/material.dart';
 import 'package:get_storage/get_storage.dart';
 import 'package:quick_social/models/models.dart';
 import 'package:uuid/uuid.dart';
+import '../api/callingapi.dart';
 
 class CommentsBottomSheet {
-  static Future<void> showCommentsBottomSheet(BuildContext context,
-      {required Post post}) {
+  static Future<void> showCommentsBottomSheet(BuildContext context, {required Post post}) {
     return showModalBottomSheet(
       context: context,
       isScrollControlled: true,
       builder: (context) => _CommentSection(post: post),
     );
-  }
-}
-
-Future<void> submitComment({
-  required String postId,
-  required String id,
-  required String fullName,
-  required String text,
-}) async {
-  try {
-    final url = Uri.parse('http://192.168.54.153:8080/api/post/get/${postId}/comments');
-    final response = await http.post(
-      url,
-      headers: {'Content-Type': 'application/json'},
-      body: jsonEncode({
-        'id': id,
-        'fullName': fullName, // Lấy fullname từ người dùng hiện tại
-        'text': text,
-      }),
-    );
-
-    if (response.statusCode == 200) {
-      print('Comment added successfully!');
-    } else {
-      throw Exception('Failed to add comment: ${response.body}');
-    }
-  } catch (e) {
-    print('Error while adding comment: $e');
-    rethrow; // Ném lỗi lại để xử lý ở nơi gọi hàm
   }
 }
 
@@ -57,25 +28,23 @@ class _CommentSection extends StatefulWidget {
 class _CommentSectionState extends State<_CommentSection> {
   final TextEditingController _commentController = TextEditingController();
   late List<Comment> _comments;
-  User? currentUser; // Biến để lưu thông tin người dùng hiện tại
-  bool _isSubmitting = false; // Trạng thái gửi bình luận
+  User? currentUser;
+  bool _isSubmitting = false;
 
   @override
   void initState() {
     super.initState();
-    _comments = widget.post.comments; // Lấy danh sách bình luận ban đầu
+    _comments = widget.post.comments;
     _loadUser();
   }
 
-  /// Hàm để lấy thông tin người dùng từ GetStorage
   Future<void> _loadUser() async {
     final box = GetStorage();
     String? userJsonString = box.read('user');
     if (userJsonString != null) {
-      // Giải mã JSON thành đối tượng User
       Map<String, dynamic> userJson = jsonDecode(userJsonString);
       setState(() {
-        currentUser = User.fromJson(userJson); // Lưu thông tin người dùng hiện tại
+        currentUser = User.fromJson(userJson);
       });
     } else {
       print("No user found in GetStorage.");
@@ -138,7 +107,11 @@ class _CommentSectionState extends State<_CommentSection> {
             ),
             const SizedBox(width: 8),
             _isSubmitting
-                ? const CircularProgressIndicator()
+                ? const SizedBox(
+              height: 24,
+              width: 24,
+              child: CircularProgressIndicator(strokeWidth: 2),
+            )
                 : IconButton(
               onPressed: _submitComment,
               icon: const Icon(Icons.send),
@@ -170,23 +143,20 @@ class _CommentSectionState extends State<_CommentSection> {
     });
 
     try {
-      final commentId = Uuid().v4();
-      final fullname = currentUser!.fullName; // Lấy fullname từ người dùng hiện tại
+      final commentId = const Uuid().v4();
+      final fullName = currentUser!.fullName;
       final text = _commentController.text.trim();
 
-      // Gửi bình luận qua API
-      await submitComment(
+      // ⬇ Gọi API đúng từ service đã tạo
+      await CallingAPIService.submitComment(
         postId: widget.post.id,
         id: commentId,
-        fullName: fullname,
+        fullName: fullName,
         text: text,
       );
 
-      // Cập nhật danh sách bình luận
       setState(() {
-        _comments.add(
-          Comment(id: commentId, fullName: fullname, text: text),
-        );
+        _comments.add(Comment(id: commentId, fullName: fullName, text: text));
         _commentController.clear();
       });
     } catch (e) {

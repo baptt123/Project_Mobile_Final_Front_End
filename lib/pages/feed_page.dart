@@ -33,7 +33,7 @@ class _FeedPageState extends State<FeedPage> {
   // Gọi API để lấy stories
   Future<void> _fetchStories() async {
     try {
-      final stories = await CallingAPI.fetchStories();
+      final stories = await CallingAPIService.fetchStories();
       setState(() {
         _stories = stories;
         _isLoadingStories = false;
@@ -49,7 +49,7 @@ class _FeedPageState extends State<FeedPage> {
   // Gọi API để lấy posts
   Future<void> _fetchPosts() async {
     try {
-      final posts = await CallingAPI.fetchPosts();
+      final posts = await CallingAPIService.fetchPosts();
       setState(() {
         _posts = posts;
         _isLoadingPosts = false;

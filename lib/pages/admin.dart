@@ -80,7 +80,7 @@ class _UserListState extends State<UserList> {
   @override
   void initState() {
     super.initState();
-    _users = CallingAPI.fetchUsersAdmin();
+    _users = CallingAPIService.fetchUsersAdmin();
   }
 
   @override
@@ -132,7 +132,7 @@ class _PostListState extends State<PostList> {
   @override
   void initState() {
     super.initState();
-    _posts = CallingAPI.fetchPostsAdmin();
+    _posts = CallingAPIService.fetchPostsAdmin();
   }
 
   @override

@@ -97,7 +97,7 @@ class _ChatScreenState extends State<ChatScreen> {
   /// Lấy danh sách tin nhắn từ API
   Future<void> _fetchMessages() async {
     try {
-      final fetchedMessages = await CallingAPI.fetchMessages(
+      final fetchedMessages = await CallingAPIService.fetchMessages(
           currentUser!.fullName ?? '', fullNameReceiver ?? '');
 
       setState(() {

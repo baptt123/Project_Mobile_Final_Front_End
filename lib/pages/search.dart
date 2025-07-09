@@ -30,7 +30,7 @@ class _UserSearchScreenState extends State<UserSearchScreen> {
     });
 
     try {
-      final results = await CallingAPI.fetchSearchUsers(query);
+      final results = await CallingAPIService.fetchSearchUsers(query);
       setState(() {
         users = results;
       });

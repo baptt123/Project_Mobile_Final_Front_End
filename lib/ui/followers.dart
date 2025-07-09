@@ -1,12 +1,12 @@
 import 'package:flutter/material.dart';
 import '../api/callingapi.dart';
-import '../model/friend.dart';
+import '../models/friend.dart';
 import '../wigetforuser/profile.dart';
 
 class FollowersPageList extends StatefulWidget {
   final String currentUserId;
 
-  FollowersPageList({required this.currentUserId});
+  const FollowersPageList({Key? key, required this.currentUserId}) : super(key: key);
 
   @override
   _FollowersPageState createState() => _FollowersPageState();
@@ -14,33 +14,38 @@ class FollowersPageList extends StatefulWidget {
 
 class _FollowersPageState extends State<FollowersPageList> {
   late Future<List<Friend>> followersList;
+  final apiService = CallingAPIService(); // Instance để gọi method không static
 
   @override
   void initState() {
     super.initState();
-    followersList = CallingAPI().fetchFollowers(widget.currentUserId);
+    _loadFollowers();
+  }
+
+  void _loadFollowers() {
+    followersList = apiService.fetchFollowers(widget.currentUserId);
   }
 
   Future<void> toggleFollowStatus(Friend friend) async {
     try {
       if (friend.isFollowers) {
-        // Unfollow logic
-        await CallingAPI().unfollowUser(widget.currentUserId, friend.id);
+        await apiService.unfollowUser(widget.currentUserId, friend.id);
         setState(() {
           friend.isFollowers = false;
         });
       } else {
-        // Follow logic
-        await CallingAPI().followUser(widget.currentUserId, friend.id);
+        await apiService.followUser(widget.currentUserId, friend.id);
         setState(() {
           friend.isFollowers = true;
         });
       }
     } catch (e) {
-      ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-        content: Text("Error: $e"),
-        backgroundColor: Colors.red,
-      ));
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text("Lỗi: $e"),
+          backgroundColor: Colors.red,
+        ),
+      );
     }
   }
 
@@ -64,7 +69,6 @@ class _FollowersPageState extends State<FollowersPageList> {
               itemBuilder: (context, index) {
                 final friend = followers[index];
                 return ListTile(
-                  // chuyển hướng
                   onTap: () {
                     Navigator.push(
                       context,
@@ -77,7 +81,7 @@ class _FollowersPageState extends State<FollowersPageList> {
                     backgroundImage: friend.profileImagePath != null &&
                         friend.profileImagePath!.isNotEmpty
                         ? NetworkImage(friend.profileImagePath!)
-                        : NetworkImage(
+                        : const NetworkImage(
                         "https://nld.mediacdn.vn/2019/1/23/iron-man-15482507516511342859204.jpg"),
                   ),
                   title: Text(
@@ -88,7 +92,8 @@ class _FollowersPageState extends State<FollowersPageList> {
                     style: ElevatedButton.styleFrom(
                       backgroundColor:
                       friend.isFollowers ? Colors.grey : Colors.blue,
-                      padding: EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                      padding:
+                      EdgeInsets.symmetric(horizontal: 8, vertical: 4),
                       minimumSize: Size(50, 30),
                     ),
                     onPressed: () => toggleFollowStatus(friend),
@@ -104,10 +109,4 @@ class _FollowersPageState extends State<FollowersPageList> {
       ),
     );
   }
-}
-
-void main() {
-  runApp(MaterialApp(
-    home: FollowersPageList(currentUserId: '6766dc9428b9352cd4eed32c'),
-  ));
 }

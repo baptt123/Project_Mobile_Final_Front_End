@@ -1,6 +1,4 @@
 
-
-
 import 'package:flutter/material.dart';
 import 'package:quick_social/dto/notificationsdto.dart';
 import 'package:quick_social/widgets/notification_tile.dart';
@@ -22,7 +20,7 @@ class _NotificationsPageState extends State<NotificationsPage>
   @override
   void initState() {
     super.initState();
-    _notificationsFuture = CallingAPI.fetchNotifications();
+    _notificationsFuture = CallingAPIService.fetchNotifications();
   }
 
   void markAllAsRead() {

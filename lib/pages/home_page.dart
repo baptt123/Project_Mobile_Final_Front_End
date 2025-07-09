@@ -1,17 +1,18 @@
-
-
+import 'dart:async';
+import 'dart:convert';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'dart:convert';
-import 'package:quick_social/pages/createnewpost.dart';
-import 'package:flutter_client_sse/flutter_client_sse.dart';
 import 'package:flutter_client_sse/constants/sse_request_type_enum.dart';
+import 'package:flutter_client_sse/flutter_client_sse.dart';
+import 'package:quick_social/common/common.dart';
+import 'package:quick_social/config/AppConfig.dart';
+import 'package:quick_social/pages/createnewpost.dart';
 import 'package:quick_social/pages/createstory.dart';
 import 'package:quick_social/pages/pages.dart';
 import 'package:quick_social/pages/search.dart';
 import 'package:quick_social/wigetforuser/nontificationui.dart';
 import 'package:quick_social/wigetforuser/profile.dart';
-import 'package:quick_social/common/common.dart';
+import '../api/callingapi.dart';
 
 class HomePage extends StatefulWidget {
   const HomePage({super.key});
@@ -27,29 +28,19 @@ class HomePage extends StatefulWidget {
 class _HomePageState extends State<HomePage> {
   int _pageIndex = 0;
   late PageController _pageController;
-
-  // Notification states
+  StreamSubscription<SSEModel>? _sseSubscription;
   bool _hasNotification = false;
   bool _hasNewStory = false;
   bool _hasNewLike = false;
   bool _hasNewComment = false;
-  bool _hasNewShare = false; // Thêm trạng thái cho thông báo chia sẻ
-
-  // Thông tin chi tiết về thông báo chia sẻ mới nhất
+  bool _hasNewShare = false;
   Map<String, dynamic>? _lastShareInfo;
-
-  // API endpoint configuration
-  static const String _baseUrl = 'http://192.168.5.248:8080/api/uploadfile/sse';
-  static const Map<String, String> _headers = {
-    "Accept": "text/event-stream",
-    "Cache-Control": "no-cache",
-  };
 
   @override
   void initState() {
     super.initState();
     _pageController = PageController(initialPage: _pageIndex);
-    // _initializeSSEListeners();
+    _initializeSSEListeners();
   }
 
   @override
@@ -58,65 +49,52 @@ class _HomePageState extends State<HomePage> {
     super.dispose();
   }
 
-  // void _initializeSSEListeners() {
-  //   // _startListeningForNotifications();
-  //   // _startListeningForStoryUploads();
-  //   // _startListeningForLikes();
-  //   // _startListeningForComments();
-  //   // _startListeningForShares(); // Thêm lắng nghe sự kiện chia sẻ
-  // }
+  void _initializeSSEListeners() {
+    try {
+      _sseSubscription = SSEClient.subscribeToSSE(
+        method: SSERequestType.GET,
+        url: AppConfig.sseUrl,
+        header: AppConfig.sseHeaders,
+      ).listen(
+            (SSEModel event) {
+          if (event.data != null) {
+            final Map<String, dynamic> data = jsonDecode(event.data!);
+            final String eventType = data['event'] ?? '';
 
-  // void _startListeningForNotifications() {
-  //   _subscribeToSSE('upload', (data) {
-  //     setState(() => _hasNotification = true);
-  //   });
-  // }
+            if (!mounted) return;
 
-  // void _startListeningForStoryUploads() {
-  //   _subscribeToSSE('story', (data) {
-  //     setState(() => _hasNewStory = true);
-  //   });
-  // }
+            setState(() {
+              switch (eventType) {
+                case 'new_story':
+                  _hasNewStory = true;
+                  break;
+                case 'new_like':
+                  _hasNewLike = true;
+                  break;
+                case 'new_comment':
+                  _hasNewComment = true;
+                  break;
+                case 'new_share':
+                  _hasNewShare = true;
+                  _lastShareInfo = data;
+                  _showShareNotification(_lastShareInfo!);
+                  break;
+                default:
+                  _hasNotification = true;
+              }
+            });
+          }
+        },
+        onError: (error) {
+          print('❌ SSE error: $error');
+        },
+      );
+    } catch (e) {
+      print('SSE Exception: $e');
+    }
+  }
 
-  // void _startListeningForLikes() {
-  //   _subscribeToSSE('like', (data) {
-  //     setState(() {
-  //       _hasNewLike = true;
-  //       if (data != null) {
-  //         final likeData = json.decode(data);
-  //         // Xử lý dữ liệu like ở đây nếu cần
-  //       }
-  //     });
-  //   });
-  // }
 
-  // void _startListeningForComments() {
-  //   _subscribeToSSE('comment', (data) {
-  //     setState(() {
-  //       _hasNewComment = true;
-  //       if (data != null) {
-  //         final commentData = json.decode(data);
-  //         // Xử lý dữ liệu comment ở đây nếu cần
-  //       }
-  //     });
-  //   });
-  // }
-
-  // Thêm phương thức lắng nghe sự kiện chia sẻ
-  // void _startListeningForShares() {
-  //   _subscribeToSSE('share', (data) {
-  //     setState(() {
-  //       _hasNewShare = true;
-  //       if (data != null) {
-  //         _lastShareInfo = json.decode(data);
-  //         // Có thể hiển thị thông báo popup hoặc xử lý dữ liệu chia sẻ ở đây
-  //         _showShareNotification(_lastShareInfo!);
-  //       }
-  //     });
-  //   });
-  // }
-
-  // Hiển thị thông báo popup khi có người chia sẻ bài viết
   void _showShareNotification(Map<String, dynamic> shareInfo) {
     if (!mounted) return;
 
@@ -128,7 +106,6 @@ class _HomePageState extends State<HomePage> {
         action: SnackBarAction(
           label: 'View',
           onPressed: () {
-            // Chuyển đến trang thông báo và hiển thị chi tiết
             _pageController.jumpToPage(1);
           },
         ),
@@ -136,28 +113,14 @@ class _HomePageState extends State<HomePage> {
     );
   }
 
-  // void _subscribeToSSE(String endpoint, Function(String?) onData) {
-  //   SSEClient.subscribeToSSE(
-  //     method: SSERequestType.GET,
-  //     url: '$_baseUrl/$endpoint',
-  //     header: _headers,
-  //   ).listen((event) {
-  //     if (event.data != null) {
-  //       onData(event.data);
-  //     }
-  //   }, onError: (error) {
-  //     debugPrint('SSE Error for $endpoint: $error');
-  //   });
-  // }
-
   void _resetNotifications() {
     setState(() {
       _hasNotification = false;
       _hasNewStory = false;
       _hasNewLike = false;
       _hasNewComment = false;
-      _hasNewShare = false; // Reset trạng thái thông báo chia sẻ
-      _lastShareInfo = null; // Reset thông tin chia sẻ
+      _hasNewShare = false;
+      _lastShareInfo = null;
     });
   }
 
@@ -197,13 +160,8 @@ class _HomePageState extends State<HomePage> {
       physics: const NeverScrollableScrollPhysics(),
       children: [
         const FeedPage(),
-
-         NotificationScreenUI(),
-        // const ProfileApp(),
-
-        // const NotificationsPage(),
+        NotificationScreenUI(),
         const ProfileScreen(),
-
         Createnewpost(),
         Createstory(),
         UserSearchScreen()
@@ -231,10 +189,8 @@ class _HomePageState extends State<HomePage> {
         _railDestination(Icons.home_outlined, Icons.home, 'Home'),
         _notificationRailDestination(),
         _railDestination(Icons.person_outlined, Icons.person, 'Profile'),
-        _railDestination(
-            Icons.post_add_outlined, Icons.post_add, 'Create Post'),
-        _railDestination(
-            Icons.camera_alt_outlined, Icons.camera_alt, 'Create Story'),
+        _railDestination(Icons.post_add_outlined, Icons.post_add, 'Create Post'),
+        _railDestination(Icons.camera_alt_outlined, Icons.camera_alt, 'Create Story'),
         _railDestination(Icons.search, Icons.search, 'Search')
       ],
     );
@@ -251,10 +207,8 @@ class _HomePageState extends State<HomePage> {
         _navDestination(Icons.home_outlined, Icons.home, 'Home', theme),
         _notificationNavDestination(theme),
         _navDestination(Icons.person_outlined, Icons.person, 'Profile', theme),
-        _navDestination(
-            Icons.post_add_outlined, Icons.post_add, 'Create Post', theme),
-        _navDestination(
-            Icons.camera_alt_outlined, Icons.camera_alt, 'Create Story', theme),
+        _navDestination(Icons.post_add_outlined, Icons.post_add, 'Create Post', theme),
+        _navDestination(Icons.camera_alt_outlined, Icons.camera_alt, 'Create Story', theme),
         _navDestination(Icons.search, Icons.search, 'Search', theme)
       ],
     );
@@ -319,7 +273,3 @@ class _HomePageState extends State<HomePage> {
     );
   }
 }
-
-/*
-chinh sua them cho phan nhan su kien
- */

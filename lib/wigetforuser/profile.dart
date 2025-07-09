@@ -11,12 +11,9 @@ import 'package:quick_social/wigetforuser/updateinfor.dart';
 import '../models/user.dart';
 import '../service/postservice.dart';
 import '../ui/FollowList.dart';
-import 'login.dart';
 
 
-// void main() {
-//   runApp(const ProfileApp());
-// }
+
 
 class ProfileApp extends StatelessWidget {
   final String userId;
